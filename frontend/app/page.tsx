@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const modules = [
   {
     title: "Process Management",
@@ -28,6 +30,12 @@ export default function Home() {
       <p className="mt-2 text-slate-600">
         Open-source, self-hosted platform for Operational Excellence.
       </p>
+      <Link
+        href="/processes"
+        className="mt-6 inline-block rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+      >
+        Open app
+      </Link>
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
         {modules.map((mod) => (
           <div
