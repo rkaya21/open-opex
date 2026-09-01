@@ -5,6 +5,7 @@ development, CI, and production. See docker-compose.yml for defaults.
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,6 +36,7 @@ TENANT_APPS = [
     "drf_spectacular",
     "corsheaders",
     "apps.accounts",
+    "apps.processes",
 ]
 
 INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
@@ -131,14 +133,18 @@ SPECTACULAR_SETTINGS = {
 _jwt_private_key = os.environ.get("JWT_PRIVATE_KEY", "")
 _jwt_public_key = os.environ.get("JWT_PUBLIC_KEY", "")
 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+}
 if _jwt_private_key and _jwt_public_key:
-    SIMPLE_JWT = {
+    SIMPLE_JWT |= {
         "ALGORITHM": "RS256",
         "SIGNING_KEY": _jwt_private_key,
         "VERIFYING_KEY": _jwt_public_key,
     }
 else:
-    SIMPLE_JWT = {"ALGORITHM": "HS256", "SIGNING_KEY": SECRET_KEY}
+    SIMPLE_JWT |= {"ALGORITHM": "HS256", "SIGNING_KEY": SECRET_KEY}
 
 # --- CORS ------------------------------------------------------------------
 
