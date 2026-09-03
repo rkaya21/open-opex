@@ -33,6 +33,21 @@ class AuthApiTests(TenantTestCase):
         response = self.client.get("/api/v1/me/")
         self.assertEqual(response.status_code, 401)
 
+    def test_users_list_requires_auth_and_lists_active(self):
+        response = self.client.get("/api/v1/users/")
+        self.assertEqual(response.status_code, 401)
+        User.objects.create_user(
+            email="passive@acme.com", password="pw-123456", is_active=False
+        )
+        token = self._obtain_token("worker@acme.com", "s3cret-pw").json()["access"]
+        response = self.client.get(
+            "/api/v1/users/", HTTP_AUTHORIZATION=f"Bearer {token}"
+        )
+        self.assertEqual(response.status_code, 200)
+        emails = [user["email"] for user in response.json()]
+        self.assertIn("worker@acme.com", emails)
+        self.assertNotIn("passive@acme.com", emails)
+
     def test_me_returns_profile(self):
         token = self._obtain_token("worker@acme.com", "s3cret-pw").json()["access"]
         response = self.client.get(
