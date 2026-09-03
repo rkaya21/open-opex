@@ -1,3 +1,4 @@
+import { kpiStatusLabels } from "@/lib/i18n";
 import type { KpiStatus } from "@/lib/types";
 
 const colors: Record<KpiStatus, string> = {
@@ -11,7 +12,7 @@ export default function KpiStatusDot({ status }: { status: KpiStatus }) {
   return (
     <span
       className={`inline-block h-3 w-3 rounded-full ${colors[status]}`}
-      title={status}
+      title={kpiStatusLabels[status]}
     />
   );
 }

@@ -1,3 +1,4 @@
+import { processStatusLabels } from "@/lib/i18n";
 import type { ProcessStatus } from "@/lib/types";
 
 const styles: Record<ProcessStatus, string> = {
@@ -9,7 +10,7 @@ const styles: Record<ProcessStatus, string> = {
 export default function StatusBadge({ status }: { status: ProcessStatus }) {
   return (
     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${styles[status]}`}>
-      {status}
+      {processStatusLabels[status]}
     </span>
   );
 }

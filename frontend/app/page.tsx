@@ -1,43 +1,19 @@
 import Link from "next/link";
-
-const modules = [
-  {
-    title: "Process Management",
-    description: "Hierarchical processes, owners, SIPOC definitions, versioning.",
-    phase: "Phase 1",
-  },
-  {
-    title: "KPI & Dashboards",
-    description: "Targets, measurements, trends — OEE, FTQ, scrap templates.",
-    phase: "Phase 1",
-  },
-  {
-    title: "Continuous Improvement",
-    description: "Suggestion flow and PDCA projects linked to KPI impact.",
-    phase: "Phase 2",
-  },
-  {
-    title: "Audits & Actions",
-    description: "5S-ready checklists, findings, shared CAPA action pool.",
-    phase: "Phase 3",
-  },
-];
+import { t } from "@/lib/i18n";
 
 export default function Home() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
       <h1 className="text-3xl font-bold tracking-tight">open-opex</h1>
-      <p className="mt-2 text-slate-600">
-        Open-source, self-hosted platform for Operational Excellence.
-      </p>
+      <p className="mt-2 text-slate-600">{t.home.tagline}</p>
       <Link
         href="/processes"
         className="mt-6 inline-block rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
       >
-        Open app
+        {t.home.openApp}
       </Link>
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
-        {modules.map((mod) => (
+        {t.home.modules.map((mod) => (
           <div
             key={mod.title}
             className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"

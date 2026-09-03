@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import StatusBadge from "@/components/StatusBadge";
 import { AuthError, authFetch } from "@/lib/auth";
+import { t } from "@/lib/i18n";
 import type { ProcessNode } from "@/lib/types";
 
 function TreeRow({ node, depth }: { node: ProcessNode; depth: number }) {
@@ -42,7 +43,7 @@ export default function ProcessesPage() {
         router.push("/login");
         return;
       }
-      setError("Failed to load processes");
+      setError(t.processes.loadFailed);
     }
   }, [router]);
 
@@ -55,22 +56,20 @@ export default function ProcessesPage() {
       <Nav />
       <main className="mx-auto max-w-5xl px-6 py-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Process map</h1>
+          <h1 className="text-2xl font-bold">{t.processes.title}</h1>
           <Link
             href="/processes/new"
             className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
           >
-            New process
+            {t.processes.newProcess}
           </Link>
         </div>
         {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
         {tree === null && !error && (
-          <p className="mt-4 text-sm text-slate-500">Loading…</p>
+          <p className="mt-4 text-sm text-slate-500">{t.common.loading}</p>
         )}
         {tree !== null && tree.length === 0 && (
-          <p className="mt-4 text-sm text-slate-500">
-            No processes yet — create the first one.
-          </p>
+          <p className="mt-4 text-sm text-slate-500">{t.processes.empty}</p>
         )}
         {tree !== null && tree.length > 0 && (
           <div className="mt-6 rounded-lg border border-slate-200 bg-white py-2">

@@ -6,14 +6,15 @@ import { useParams, useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import StatusBadge from "@/components/StatusBadge";
 import { AuthError, authFetch } from "@/lib/auth";
+import { t } from "@/lib/i18n";
 import type { Process } from "@/lib/types";
 
 const sipocSections = [
-  ["suppliers", "Suppliers"],
-  ["inputs", "Inputs"],
-  ["steps", "Process steps"],
-  ["outputs", "Outputs"],
-  ["customers", "Customers"],
+  ["suppliers", t.processes.sipoc.suppliers],
+  ["inputs", t.processes.sipoc.inputs],
+  ["steps", t.processes.sipoc.steps],
+  ["outputs", t.processes.sipoc.outputs],
+  ["customers", t.processes.sipoc.customers],
 ] as const;
 
 export default function ProcessDetailPage() {
@@ -26,7 +27,7 @@ export default function ProcessDetailPage() {
     try {
       const response = await authFetch(`/api/v1/processes/${id}/`);
       if (!response.ok) {
-        setError("Process not found");
+        setError(t.processes.notFound);
         return;
       }
       setProcess(await response.json());
@@ -61,7 +62,7 @@ export default function ProcessDetailPage() {
       <>
         <Nav />
         <main className="mx-auto max-w-3xl px-6 py-8">
-          <p className="text-sm text-slate-500">{error || "Loading…"}</p>
+          <p className="text-sm text-slate-500">{error || t.common.loading}</p>
         </main>
       </>
     );
@@ -81,7 +82,7 @@ export default function ProcessDetailPage() {
               <StatusBadge status={process.status} />
               {process.owner_detail && (
                 <span className="text-xs text-slate-500">
-                  Owner: {process.owner_detail.email}
+                  {t.processes.owner}: {process.owner_detail.email}
                 </span>
               )}
             </div>
@@ -91,14 +92,16 @@ export default function ProcessDetailPage() {
               href={`/processes/${process.id}/edit`}
               className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
             >
-              Edit
+              {t.common.edit}
             </Link>
             {process.status !== "archived" && (
               <button
                 onClick={() => act("publish")}
                 className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-500"
               >
-                {process.status === "published" ? "Republish" : "Publish"}
+                {process.status === "published"
+                  ? t.processes.republish
+                  : t.processes.publish}
               </button>
             )}
             {process.status !== "archived" && (
@@ -106,7 +109,7 @@ export default function ProcessDetailPage() {
                 onClick={() => act("archive")}
                 className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
               >
-                Archive
+                {t.processes.archive}
               </button>
             )}
           </div>
@@ -116,7 +119,9 @@ export default function ProcessDetailPage() {
 
         {process.purpose && (
           <section className="mt-6">
-            <h2 className="text-sm font-semibold text-slate-700">Purpose</h2>
+            <h2 className="text-sm font-semibold text-slate-700">
+              {t.processes.purpose}
+            </h2>
             <p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">
               {process.purpose}
             </p>

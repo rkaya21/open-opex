@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { AuthError, authFetch } from "@/lib/auth";
+import { t } from "@/lib/i18n";
 import type { Kpi, KpiTemplate, Paginated, Process } from "@/lib/types";
 
 export default function NewKpiPage() {
@@ -37,7 +38,7 @@ export default function NewKpiPage() {
           router.push("/login");
           return;
         }
-        setError("Failed to load templates");
+        setError(t.kpis.templatesLoadFailed);
       });
   }, [router]);
 
@@ -74,7 +75,7 @@ export default function NewKpiPage() {
       if (!response.ok) {
         const body = await response.json();
         const first = Object.entries(body)[0];
-        setError(first ? `${first[0]}: ${first[1]}` : "Save failed");
+        setError(first ? `${first[0]}: ${first[1]}` : t.kpis.saveFailed);
         return;
       }
       const saved: Kpi = await response.json();
@@ -84,7 +85,7 @@ export default function NewKpiPage() {
         router.push("/login");
         return;
       }
-      setError("Save failed");
+      setError(t.kpis.saveFailed);
     } finally {
       setBusy(false);
     }
@@ -97,11 +98,11 @@ export default function NewKpiPage() {
     <>
       <Nav />
       <main className="mx-auto max-w-3xl px-6 py-8">
-        <h1 className="text-2xl font-bold">New KPI</h1>
+        <h1 className="text-2xl font-bold">{t.kpis.newTitle}</h1>
 
         {templates.length > 0 && (
           <div className="mt-4">
-            <label className="text-sm font-medium">Start from a template</label>
+            <label className="text-sm font-medium">{t.kpis.fromTemplate}</label>
             <div className="mt-2 flex flex-wrap gap-2">
               {templates.map((template) => (
                 <button
@@ -120,7 +121,7 @@ export default function NewKpiPage() {
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-medium">Name</label>
+              <label className="text-sm font-medium">{t.kpis.name}</label>
               <input
                 required
                 value={values.name}
@@ -129,28 +130,28 @@ export default function NewKpiPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Unit</label>
+              <label className="text-sm font-medium">{t.kpis.unit}</label>
               <input
                 required
-                placeholder="%, hours, pieces…"
+                placeholder={t.kpis.unitPlaceholder}
                 value={values.unit}
                 onChange={(e) => set("unit", e.target.value)}
                 className={inputClass}
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Direction</label>
+              <label className="text-sm font-medium">{t.kpis.direction}</label>
               <select
                 value={values.direction}
                 onChange={(e) => set("direction", e.target.value as "higher" | "lower")}
                 className={inputClass}
               >
-                <option value="higher">Higher is better</option>
-                <option value="lower">Lower is better</option>
+                <option value="higher">{t.kpis.directionHigher}</option>
+                <option value="lower">{t.kpis.directionLower}</option>
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium">Frequency</label>
+              <label className="text-sm font-medium">{t.kpis.frequency}</label>
               <select
                 value={values.frequency}
                 onChange={(e) =>
@@ -158,13 +159,13 @@ export default function NewKpiPage() {
                 }
                 className={inputClass}
               >
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
+                <option value="daily">Günlük</option>
+                <option value="weekly">Haftalık</option>
+                <option value="monthly">Aylık</option>
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium">Target (optional)</label>
+              <label className="text-sm font-medium">{t.kpis.targetLabel}</label>
               <input
                 type="number"
                 step="0.01"
@@ -174,7 +175,7 @@ export default function NewKpiPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Tolerance % (yellow band)</label>
+              <label className="text-sm font-medium">{t.kpis.tolerance}</label>
               <input
                 type="number"
                 min={0}
@@ -186,7 +187,7 @@ export default function NewKpiPage() {
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium">Linked process (optional)</label>
+            <label className="text-sm font-medium">{t.kpis.linkedProcess}</label>
             <select
               value={values.process}
               onChange={(e) =>
@@ -194,7 +195,7 @@ export default function NewKpiPage() {
               }
               className={inputClass}
             >
-              <option value="">— none —</option>
+              <option value="">{t.kpis.noProcess}</option>
               {processes.map((process) => (
                 <option key={process.id} value={process.id}>
                   {process.code} — {process.name}
@@ -203,7 +204,7 @@ export default function NewKpiPage() {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">Description</label>
+            <label className="text-sm font-medium">{t.kpis.description}</label>
             <textarea
               rows={2}
               value={values.description}
@@ -217,7 +218,7 @@ export default function NewKpiPage() {
             disabled={busy}
             className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
           >
-            {busy ? "Saving…" : "Create KPI"}
+            {busy ? t.common.saving : t.kpis.createSubmit}
           </button>
         </form>
       </main>

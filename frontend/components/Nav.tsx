@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { clearTokens } from "@/lib/auth";
+import { t } from "@/lib/i18n";
 
 export default function Nav() {
   const router = useRouter();
@@ -19,16 +20,16 @@ export default function Nav() {
           open-opex
         </Link>
         <Link href="/processes" className="text-sm text-slate-600 hover:text-slate-900">
-          Processes
+          {t.nav.processes}
         </Link>
         <Link href="/kpis" className="text-sm text-slate-600 hover:text-slate-900">
-          KPIs
+          {t.nav.kpis}
         </Link>
         <button
           onClick={logout}
           className="ml-auto text-sm text-slate-500 hover:text-slate-900"
         >
-          Log out
+          {t.nav.logout}
         </button>
       </nav>
     </header>

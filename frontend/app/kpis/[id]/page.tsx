@@ -6,6 +6,7 @@ import Nav from "@/components/Nav";
 import KpiStatusDot from "@/components/KpiStatusDot";
 import KpiTrendChart from "@/components/KpiTrendChart";
 import { AuthError, authFetch } from "@/lib/auth";
+import { frequencyLabels, t } from "@/lib/i18n";
 import type { Kpi, KpiMeasurement } from "@/lib/types";
 
 export default function KpiDetailPage() {
@@ -26,7 +27,7 @@ export default function KpiDetailPage() {
         authFetch(`/api/v1/kpis/${id}/measurements/`),
       ]);
       if (!kpiRes.ok) {
-        setError("KPI not found");
+        setError(t.kpis.notFound);
         return;
       }
       setKpi(await kpiRes.json());
@@ -50,7 +51,7 @@ export default function KpiDetailPage() {
         body: JSON.stringify([{ period, value, note }]),
       });
       if (!response.ok) {
-        setError("Invalid measurement — check the period and value");
+        setError(t.kpis.invalidMeasurement);
         return;
       }
       setPeriod("");
@@ -69,7 +70,7 @@ export default function KpiDetailPage() {
       <>
         <Nav />
         <main className="mx-auto max-w-4xl px-6 py-8">
-          <p className="text-sm text-slate-500">{error || "Loading…"}</p>
+          <p className="text-sm text-slate-500">{error || t.common.loading}</p>
         </main>
       </>
     );
@@ -88,9 +89,9 @@ export default function KpiDetailPage() {
         </div>
         <p className="mt-1 text-sm text-slate-500">
           {kpi.process_code ? `${kpi.process_code} · ` : ""}
-          {kpi.frequency} · {kpi.direction === "higher" ? "higher" : "lower"} is
-          better
-          {kpi.target !== null && ` · target ${kpi.target} ${kpi.unit}`}
+          {frequencyLabels[kpi.frequency]} ·{" "}
+          {kpi.direction === "higher" ? t.kpis.higherIsBetter : t.kpis.lowerIsBetter}
+          {kpi.target !== null && ` · ${t.common.target} ${kpi.target} ${kpi.unit}`}
         </p>
         {kpi.description && (
           <p className="mt-2 text-sm text-slate-600">{kpi.description}</p>
@@ -100,15 +101,17 @@ export default function KpiDetailPage() {
           {kpi.trend.length > 0 ? (
             <KpiTrendChart trend={kpi.trend} target={kpi.target} unit={kpi.unit} />
           ) : (
-            <p className="text-sm text-slate-500">No measurements yet.</p>
+            <p className="text-sm text-slate-500">{t.kpis.noMeasurements}</p>
           )}
         </section>
 
         <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5">
-          <h2 className="text-sm font-semibold text-slate-700">Add measurement</h2>
+          <h2 className="text-sm font-semibold text-slate-700">
+            {t.kpis.addMeasurement}
+          </h2>
           <form onSubmit={addMeasurement} className="mt-3 flex flex-wrap items-end gap-3">
             <div className="flex flex-col">
-              <label className="text-xs text-slate-500">Period</label>
+              <label className="text-xs text-slate-500">{t.kpis.period}</label>
               <input
                 type="date"
                 required
@@ -118,7 +121,9 @@ export default function KpiDetailPage() {
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-xs text-slate-500">Value ({kpi.unit})</label>
+              <label className="text-xs text-slate-500">
+                {t.kpis.value} ({kpi.unit})
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -129,7 +134,9 @@ export default function KpiDetailPage() {
               />
             </div>
             <div className="flex grow flex-col">
-              <label className="text-xs text-slate-500">Note (optional)</label>
+              <label className="text-xs text-slate-500">
+                {t.kpis.note} ({t.common.optional})
+              </label>
               <input
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -141,24 +148,22 @@ export default function KpiDetailPage() {
               disabled={busy}
               className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
             >
-              {busy ? "Saving…" : "Save"}
+              {busy ? t.common.saving : t.common.save}
             </button>
           </form>
-          <p className="mt-2 text-xs text-slate-400">
-            Re-entering an existing period overwrites its value.
-          </p>
+          <p className="mt-2 text-xs text-slate-400">{t.kpis.overwriteHint}</p>
           {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
         </section>
 
         {measurements.length > 0 && (
           <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5">
-            <h2 className="text-sm font-semibold text-slate-700">History</h2>
+            <h2 className="text-sm font-semibold text-slate-700">{t.kpis.history}</h2>
             <table className="mt-3 w-full text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wide text-slate-500">
-                  <th className="py-1">Period</th>
-                  <th className="py-1">Value</th>
-                  <th className="py-1">Note</th>
+                  <th className="py-1">{t.kpis.period}</th>
+                  <th className="py-1">{t.kpis.value}</th>
+                  <th className="py-1">{t.kpis.note}</th>
                 </tr>
               </thead>
               <tbody>

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import ProcessForm from "@/components/ProcessForm";
 import { AuthError, authFetch } from "@/lib/auth";
+import { t } from "@/lib/i18n";
 import type { Process } from "@/lib/types";
 
 export default function EditProcessPage() {
@@ -29,12 +30,12 @@ export default function EditProcessPage() {
     <>
       <Nav />
       <main className="mx-auto max-w-3xl px-6 py-8">
-        <h1 className="text-2xl font-bold">Edit process</h1>
+        <h1 className="text-2xl font-bold">{t.processes.editTitle}</h1>
         <div className="mt-6">
           {process ? (
             <ProcessForm process={process} />
           ) : (
-            <p className="text-sm text-slate-500">Loading…</p>
+            <p className="text-sm text-slate-500">{t.common.loading}</p>
           )}
         </div>
       </main>

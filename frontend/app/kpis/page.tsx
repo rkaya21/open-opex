@@ -7,6 +7,7 @@ import Nav from "@/components/Nav";
 import KpiStatusDot from "@/components/KpiStatusDot";
 import KpiTrendChart from "@/components/KpiTrendChart";
 import { AuthError, authFetch } from "@/lib/auth";
+import { frequencyLabels, t } from "@/lib/i18n";
 import type { Kpi } from "@/lib/types";
 
 export default function KpiDashboardPage() {
@@ -23,7 +24,7 @@ export default function KpiDashboardPage() {
         router.push("/login");
         return;
       }
-      setError("Failed to load KPIs");
+      setError(t.kpis.loadFailed);
     }
   }, [router]);
 
@@ -36,22 +37,20 @@ export default function KpiDashboardPage() {
       <Nav />
       <main className="mx-auto max-w-5xl px-6 py-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">KPI dashboard</h1>
+          <h1 className="text-2xl font-bold">{t.kpis.title}</h1>
           <Link
             href="/kpis/new"
             className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
           >
-            New KPI
+            {t.kpis.newKpi}
           </Link>
         </div>
         {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
         {kpis === null && !error && (
-          <p className="mt-4 text-sm text-slate-500">Loading…</p>
+          <p className="mt-4 text-sm text-slate-500">{t.common.loading}</p>
         )}
         {kpis !== null && kpis.length === 0 && (
-          <p className="mt-4 text-sm text-slate-500">
-            No KPIs yet — create one from a template.
-          </p>
+          <p className="mt-4 text-sm text-slate-500">{t.kpis.empty}</p>
         )}
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {kpis?.map((kpi) => (
@@ -66,7 +65,7 @@ export default function KpiDashboardPage() {
               </div>
               <p className="mt-1 text-xs text-slate-500">
                 {kpi.process_code ? `${kpi.process_code} · ` : ""}
-                {kpi.frequency}
+                {frequencyLabels[kpi.frequency]}
               </p>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-bold">
@@ -75,7 +74,7 @@ export default function KpiDashboardPage() {
                 <span className="text-sm text-slate-500">{kpi.unit}</span>
                 {kpi.target !== null && (
                   <span className="ml-auto text-xs text-slate-400">
-                    target {kpi.target}
+                    {t.common.target} {kpi.target}
                   </span>
                 )}
               </div>

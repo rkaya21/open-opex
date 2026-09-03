@@ -4,14 +4,14 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "open-opex",
   description:
-    "Open-source Operational Excellence platform — processes, KPIs, continuous improvement, audits",
+    "Açık kaynak Operasyonel Mükemmellik platformu — süreçler, KPI'lar, sürekli iyileştirme, denetimler",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="tr">
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
         {children}
       </body>

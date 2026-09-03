@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { t } from "@/lib/i18n";
 import type { TrendPoint } from "@/lib/types";
 
 interface Props {
@@ -31,13 +32,17 @@ export default function KpiTrendChart({ trend, target, unit, height = 280 }: Pro
         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
         <XAxis dataKey="period" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} width={48} />
-        <Tooltip formatter={(value) => [`${value} ${unit}`, "Value"]} />
+        <Tooltip formatter={(value) => [`${value} ${unit}`, t.kpis.value]} />
         {target !== null && (
           <ReferenceLine
             y={Number(target)}
             stroke="#dc2626"
             strokeDasharray="6 4"
-            label={{ value: `target ${target}`, fontSize: 11, fill: "#dc2626" }}
+            label={{
+              value: `${t.common.target} ${target}`,
+              fontSize: 11,
+              fill: "#dc2626",
+            }}
           />
         )}
         <Line

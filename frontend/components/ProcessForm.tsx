@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthError, authFetch } from "@/lib/auth";
+import { t } from "@/lib/i18n";
 import type { Paginated, Process } from "@/lib/types";
 
 interface Props {
@@ -10,11 +11,11 @@ interface Props {
 }
 
 const sipocFields = [
-  ["suppliers", "Suppliers"],
-  ["inputs", "Inputs"],
-  ["steps", "Process steps"],
-  ["outputs", "Outputs"],
-  ["customers", "Customers"],
+  ["suppliers", t.processes.sipoc.suppliers],
+  ["inputs", t.processes.sipoc.inputs],
+  ["steps", t.processes.sipoc.steps],
+  ["outputs", t.processes.sipoc.outputs],
+  ["customers", t.processes.sipoc.customers],
 ] as const;
 
 export default function ProcessForm({ process }: Props) {
@@ -45,7 +46,7 @@ export default function ProcessForm({ process }: Props) {
           router.push("/login");
           return;
         }
-        setError("Failed to load the parent process list");
+        setError(t.processes.parentsLoadFailed);
       });
   }, [process?.id, router]);
 
@@ -69,7 +70,7 @@ export default function ProcessForm({ process }: Props) {
       if (!response.ok) {
         const body = await response.json();
         const first = Object.entries(body)[0];
-        setError(first ? `${first[0]}: ${first[1]}` : "Save failed");
+        setError(first ? `${first[0]}: ${first[1]}` : t.processes.saveFailed);
         return;
       }
       const saved: Process = await response.json();
@@ -79,7 +80,7 @@ export default function ProcessForm({ process }: Props) {
         router.push("/login");
         return;
       }
-      setError("Save failed");
+      setError(t.processes.saveFailed);
     } finally {
       setBusy(false);
     }
@@ -92,7 +93,7 @@ export default function ProcessForm({ process }: Props) {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="text-sm font-medium">Name</label>
+          <label className="text-sm font-medium">{t.processes.name}</label>
           <input
             required
             value={values.name}
@@ -101,7 +102,7 @@ export default function ProcessForm({ process }: Props) {
           />
         </div>
         <div>
-          <label className="text-sm font-medium">Code</label>
+          <label className="text-sm font-medium">{t.processes.code}</label>
           <input
             required
             placeholder="PR-001"
@@ -112,13 +113,13 @@ export default function ProcessForm({ process }: Props) {
         </div>
       </div>
       <div>
-        <label className="text-sm font-medium">Parent process</label>
+        <label className="text-sm font-medium">{t.processes.parent}</label>
         <select
           value={values.parent}
           onChange={(e) => set("parent", e.target.value === "" ? "" : Number(e.target.value))}
           className={inputClass}
         >
-          <option value="">— none (root process) —</option>
+          <option value="">{t.processes.noParent}</option>
           {candidates.map((candidate) => (
             <option key={candidate.id} value={candidate.id}>
               {candidate.code} — {candidate.name}
@@ -127,7 +128,7 @@ export default function ProcessForm({ process }: Props) {
         </select>
       </div>
       <div>
-        <label className="text-sm font-medium">Purpose</label>
+        <label className="text-sm font-medium">{t.processes.purpose}</label>
         <textarea
           rows={2}
           value={values.purpose}
@@ -157,7 +158,11 @@ export default function ProcessForm({ process }: Props) {
         disabled={busy}
         className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
       >
-        {busy ? "Saving…" : process ? "Save changes" : "Create process"}
+        {busy
+          ? t.common.saving
+          : process
+            ? t.processes.saveSubmit
+            : t.processes.createSubmit}
       </button>
     </form>
   );
