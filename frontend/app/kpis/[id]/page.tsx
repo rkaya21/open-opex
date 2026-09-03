@@ -86,14 +86,22 @@ export default function KpiDetailPage() {
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold">{kpi.name}</h1>
           <KpiStatusDot status={kpi.status} />
-          <button
-            onClick={() =>
-              downloadFile(`/api/v1/kpis/${kpi.id}/export/`, `kpi-${kpi.id}.csv`)
-            }
-            className="ml-auto rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
-          >
-            {t.common.exportCsv}
-          </button>
+          <div className="ml-auto flex gap-2">
+            <button
+              onClick={() => window.print()}
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+            >
+              {t.common.print}
+            </button>
+            <button
+              onClick={() =>
+                downloadFile(`/api/v1/kpis/${kpi.id}/export/`, `kpi-${kpi.id}.csv`)
+              }
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+            >
+              {t.common.exportCsv}
+            </button>
+          </div>
         </div>
         <p className="mt-1 text-sm text-slate-500">
           {kpi.process_code ? `${kpi.process_code} · ` : ""}

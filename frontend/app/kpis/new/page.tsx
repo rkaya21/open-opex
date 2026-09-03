@@ -161,9 +161,9 @@ export default function NewKpiPage() {
                 }
                 className={inputClass}
               >
-                <option value="daily">Günlük</option>
-                <option value="weekly">Haftalık</option>
-                <option value="monthly">Aylık</option>
+                <option value="daily">{t.kpis.frequencyDaily}</option>
+                <option value="weekly">{t.kpis.frequencyWeekly}</option>
+                <option value="monthly">{t.kpis.frequencyMonthly}</option>
               </select>
             </div>
             <div>

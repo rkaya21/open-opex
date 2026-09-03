@@ -166,11 +166,19 @@ export default function AuditDetailPage() {
               {audit.auditor_email && ` · ${audit.auditor_email}`}
             </p>
           </div>
-          {completed && (
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800">
-              %{audit.score_percent}
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {completed && (
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800">
+                %{audit.score_percent}
+              </span>
+            )}
+            <button
+              onClick={() => window.print()}
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+            >
+              {t.common.print}
+            </button>
+          </div>
         </div>
 
         {completed && (

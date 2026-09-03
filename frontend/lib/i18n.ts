@@ -1,5 +1,11 @@
-/** UI strings, centralized. Currently Turkish-only; Phase 4 will move this
- * behind a locale switch (TR/EN) without touching components. */
+/** UI strings, centralized — Turkish (default) and English.
+ *
+ * The locale is read from localStorage once at module load; switching writes
+ * the preference and reloads the page so module-level derived constants stay
+ * consistent. SSR always renders the default locale; the brief client
+ * re-render for non-default locales is an accepted tradeoff until a full
+ * next-intl migration.
+ */
 
 import type {
   KpiStatus,
@@ -8,7 +14,12 @@ import type {
   SuggestionStatus,
 } from "@/lib/types";
 
-export const t = {
+export type Locale = "tr" | "en";
+
+const LOCALE_KEY = "openopex.locale";
+const DEFAULT_LOCALE: Locale = "tr";
+
+const tr = {
   nav: {
     home: "Ana Sayfa",
     myWork: "Benim İşlerim",
@@ -32,6 +43,7 @@ export const t = {
     target: "hedef",
     optional: "opsiyonel",
     exportCsv: "CSV indir",
+    print: "Yazdır / PDF",
   },
   notifications: {
     title: "Bildirimler",
@@ -42,28 +54,6 @@ export const t = {
   home: {
     tagline: "Operasyonel Mükemmellik için açık kaynak, kendi sunucunda çalışan platform.",
     openApp: "Uygulamayı aç",
-    modules: [
-      {
-        title: "Süreç Yönetimi",
-        description: "Hiyerarşik süreçler, sahipler, SIPOC tanımları, versiyonlama.",
-        phase: "Faz 1",
-      },
-      {
-        title: "KPI & Panolar",
-        description: "Hedefler, ölçümler, trendler — OEE, FTQ, hurda şablonları.",
-        phase: "Faz 1",
-      },
-      {
-        title: "Sürekli İyileştirme",
-        description: "Öneri akışı ve KPI etkisine bağlı PDCA projeleri.",
-        phase: "Faz 2",
-      },
-      {
-        title: "Denetim & Aksiyonlar",
-        description: "5S'e hazır kontrol listeleri, bulgular, ortak CAPA aksiyon havuzu.",
-        phase: "Faz 3",
-      },
-    ],
   },
   login: {
     title: "Giriş yap",
@@ -129,6 +119,9 @@ export const t = {
     directionHigher: "Yüksek olması iyi",
     directionLower: "Düşük olması iyi",
     frequency: "Sıklık",
+    frequencyDaily: "Günlük",
+    frequencyWeekly: "Haftalık",
+    frequencyMonthly: "Aylık",
     targetLabel: "Hedef (opsiyonel)",
     tolerance: "Tolerans % (sarı bant)",
     linkedProcess: "Bağlı süreç (opsiyonel)",
@@ -265,38 +258,333 @@ export const t = {
       suggestions_to_evaluate: "Değerlendirme bekleyen öneriler",
     },
   },
-} as const;
-
-export const suggestionStatusLabels: Record<SuggestionStatus, string> = {
-  submitted: "değerlendirilecek",
-  approved: "onaylandı",
-  rejected: "reddedildi",
-  implemented: "uygulandı",
+  labels: {
+    suggestionStatus: {
+      submitted: "değerlendirilecek",
+      approved: "onaylandı",
+      rejected: "reddedildi",
+      implemented: "uygulandı",
+    } as Record<SuggestionStatus, string>,
+    projectPhase: {
+      plan: "Planla",
+      do: "Uygula",
+      check: "Kontrol et",
+      act: "Önlem al",
+      done: "Tamamlandı",
+    } as Record<ProjectPhase, string>,
+    processStatus: {
+      draft: "taslak",
+      published: "yayında",
+      archived: "arşiv",
+    } as Record<ProcessStatus, string>,
+    kpiStatus: {
+      green: "hedefte",
+      yellow: "tolerans bandında",
+      red: "hedef dışında",
+      gray: "veri yok",
+    } as Record<KpiStatus, string>,
+    frequency: {
+      daily: "günlük",
+      weekly: "haftalık",
+      monthly: "aylık",
+    } as Record<"daily" | "weekly" | "monthly", string>,
+  },
 };
 
-export const projectPhaseLabels: Record<ProjectPhase, string> = {
-  plan: "Planla",
-  do: "Uygula",
-  check: "Kontrol et",
-  act: "Önlem al",
-  done: "Tamamlandı",
+export type Dictionary = typeof tr;
+
+const en: Dictionary = {
+  nav: {
+    home: "Home",
+    myWork: "My Work",
+    groupCulture: "Cultural Transformation",
+    groupPerformance: "Process & Performance",
+    groupField: "Audit & Shop Floor",
+    processes: "Processes",
+    kpis: "KPIs",
+    suggestions: "Suggestions",
+    projects: "Projects",
+    areas: "Areas",
+    audits: "Audits",
+    actions: "Actions",
+    logout: "Log out",
+  },
+  common: {
+    loading: "Loading…",
+    saving: "Saving…",
+    save: "Save",
+    edit: "Edit",
+    target: "target",
+    optional: "optional",
+    exportCsv: "Export CSV",
+    print: "Print / PDF",
+  },
+  notifications: {
+    title: "Notifications",
+    empty: "No notifications.",
+    loadFailed: "Failed to load notifications",
+    markAllRead: "Mark all as read",
+  },
+  home: {
+    tagline: "Open-source, self-hosted platform for Operational Excellence.",
+    openApp: "Open app",
+  },
+  login: {
+    title: "Sign in",
+    subtitle: "Use your tenant account (e.g. admin@acme.com).",
+    email: "Email",
+    password: "Password",
+    submit: "Sign in",
+    submitting: "Signing in…",
+    invalid: "Invalid email or password",
+  },
+  processes: {
+    title: "Process map",
+    newProcess: "New process",
+    empty: "No processes yet — create the first one.",
+    loadFailed: "Failed to load processes",
+    notFound: "Process not found",
+    owner: "Owner",
+    purpose: "Purpose",
+    publish: "Publish",
+    republish: "Republish",
+    archive: "Archive",
+    editTitle: "Edit process",
+    newTitle: "New process",
+    name: "Name",
+    code: "Code",
+    parent: "Parent process",
+    noParent: "— none (root process) —",
+    createSubmit: "Create process",
+    saveSubmit: "Save changes",
+    saveFailed: "Save failed",
+    parentsLoadFailed: "Failed to load the parent process list",
+    sipoc: {
+      suppliers: "Suppliers",
+      inputs: "Inputs",
+      steps: "Process steps",
+      outputs: "Outputs",
+      customers: "Customers",
+    },
+  },
+  kpis: {
+    title: "KPI dashboard",
+    newKpi: "New KPI",
+    empty: "No KPIs yet — create one from a template.",
+    loadFailed: "Failed to load KPIs",
+    notFound: "KPI not found",
+    noMeasurements: "No measurements yet.",
+    addMeasurement: "Add measurement",
+    period: "Period",
+    value: "Value",
+    note: "Note",
+    history: "History",
+    overwriteHint: "Re-entering an existing period overwrites its value.",
+    invalidMeasurement: "Invalid measurement — check the period and value",
+    higherIsBetter: "higher is better",
+    lowerIsBetter: "lower is better",
+    newTitle: "New KPI",
+    fromTemplate: "Start from a template",
+    templatesLoadFailed: "Failed to load templates",
+    name: "Name",
+    unit: "Unit",
+    unitPlaceholder: "%, hours, pieces…",
+    direction: "Direction",
+    directionHigher: "Higher is better",
+    directionLower: "Lower is better",
+    frequency: "Frequency",
+    frequencyDaily: "Daily",
+    frequencyWeekly: "Weekly",
+    frequencyMonthly: "Monthly",
+    targetLabel: "Target (optional)",
+    tolerance: "Tolerance % (yellow band)",
+    linkedProcess: "Linked process (optional)",
+    noProcess: "— none —",
+    description: "Description",
+    createSubmit: "Create KPI",
+    saveFailed: "Save failed",
+  },
+  suggestions: {
+    title: "Suggestions",
+    newSuggestion: "New suggestion",
+    empty: "No suggestions yet — share the first idea.",
+    loadFailed: "Failed to load suggestions",
+    notFound: "Suggestion not found",
+    formTitle: "Title",
+    formDescription: "Description",
+    relatedProcess: "Related process (optional)",
+    submit: "Submit suggestion",
+    saveFailed: "Save failed",
+    submittedBy: "Submitted by",
+    evaluatedBy: "Evaluated by",
+    evaluationNote: "Evaluation note",
+    notePlaceholder: "Note (optional)",
+    approve: "Approve",
+    reject: "Reject",
+    implement: "Mark as implemented",
+    toProject: "Convert to project",
+    actionFailed: "Operation failed",
+    all: "All",
+  },
+  projects: {
+    title: "Improvement projects",
+    newProject: "New project",
+    empty: "No projects yet.",
+    loadFailed: "Failed to load projects",
+    notFound: "Project not found",
+    editTitle: "Edit project",
+    formTitle: "Title",
+    formDescription: "Description",
+    relatedProcess: "Related process (optional)",
+    targetKpi: "Target KPI (optional)",
+    fromSuggestion: "Source suggestion",
+    lead: "Project lead",
+    expectedBenefit: "Expected benefit",
+    realizedBenefit: "Realized benefit",
+    advance: "Advance to next phase",
+    saveFailed: "Save failed",
+    actionFailed: "Operation failed",
+    createSubmit: "Create project",
+    saveSubmit: "Save changes",
+    none: "— none —",
+    a3: {
+      title: "A3 Problem Solving",
+      background: "Background",
+      current_state: "Current state",
+      goal: "Target state",
+      root_cause: "Root cause analysis",
+      countermeasures: "Countermeasures",
+      follow_up: "Follow-up plan",
+    },
+  },
+  areas: {
+    title: "Areas",
+    newArea: "New area",
+    empty: "No areas defined yet.",
+    loadFailed: "Failed to load areas",
+    name: "Area name",
+    code: "Code",
+    codePlaceholder: "AREA-01",
+    responsible: "Responsible",
+    lastScore: "Last score",
+    noScore: "Not audited yet",
+    saveFailed: "Save failed",
+    create: "Add area",
+  },
+  audits: {
+    title: "Audits",
+    newAudit: "Schedule new audit",
+    empty: "No audits yet.",
+    loadFailed: "Failed to load audits",
+    notFound: "Audit not found",
+    template: "Question set",
+    area: "Area",
+    auditor: "Auditor",
+    date: "Date",
+    planned: "planned",
+    completed: "completed",
+    score: "Score",
+    schedule: "Schedule",
+    saveFailed: "Save failed",
+    saveAnswers: "Save scores",
+    completeAudit: "Complete audit",
+    completedNote: "This audit is completed and can no longer be edited.",
+    answersSaved: "Scores saved",
+    actionFailed: "Operation failed",
+    findings: "Findings",
+    newFinding: "Add finding",
+    findingTitle: "Finding title",
+    findingDescription: "Description",
+    photo: "Photo",
+    close: "Close",
+    open: "open",
+    closed: "closed",
+  },
+  actions: {
+    title: "Actions",
+    newAction: "New action",
+    empty: "No actions.",
+    loadFailed: "Failed to load actions",
+    formTitle: "Title",
+    assignee: "Assignee",
+    dueDate: "Due date",
+    create: "Create action",
+    saveFailed: "Save failed",
+    all: "All",
+    statusOpen: "open",
+    statusInProgress: "in progress",
+    statusDone: "done",
+    markInProgress: "Start",
+    markDone: "Complete",
+    source: "Source",
+    unassigned: "unassigned",
+  },
+  myWork: {
+    title: "My Work",
+    subtitle: "Records waiting on me",
+    loadFailed: "Failed to load records",
+    emptyAll: "Nothing waiting on you 🎉",
+    buckets: {
+      actions: "My actions",
+      audits: "My planned audits",
+      suggestions: "My open suggestions",
+      projects: "Projects I lead",
+      suggestions_to_evaluate: "Suggestions awaiting evaluation",
+    },
+  },
+  labels: {
+    suggestionStatus: {
+      submitted: "to be evaluated",
+      approved: "approved",
+      rejected: "rejected",
+      implemented: "implemented",
+    },
+    projectPhase: {
+      plan: "Plan",
+      do: "Do",
+      check: "Check",
+      act: "Act",
+      done: "Done",
+    },
+    processStatus: {
+      draft: "draft",
+      published: "published",
+      archived: "archived",
+    },
+    kpiStatus: {
+      green: "on target",
+      yellow: "within tolerance",
+      red: "off target",
+      gray: "no data",
+    },
+    frequency: {
+      daily: "daily",
+      weekly: "weekly",
+      monthly: "monthly",
+    },
+  },
 };
 
-export const processStatusLabels: Record<ProcessStatus, string> = {
-  draft: "taslak",
-  published: "yayında",
-  archived: "arşiv",
-};
+const dictionaries: Record<Locale, Dictionary> = { tr, en };
 
-export const kpiStatusLabels: Record<KpiStatus, string> = {
-  green: "hedefte",
-  yellow: "tolerans bandında",
-  red: "hedef dışında",
-  gray: "veri yok",
-};
+function detectLocale(): Locale {
+  if (typeof window === "undefined") return DEFAULT_LOCALE;
+  const stored = window.localStorage.getItem(LOCALE_KEY);
+  return stored === "en" || stored === "tr" ? stored : DEFAULT_LOCALE;
+}
 
-export const frequencyLabels: Record<"daily" | "weekly" | "monthly", string> = {
-  daily: "günlük",
-  weekly: "haftalık",
-  monthly: "aylık",
-};
+export const locale: Locale = detectLocale();
+
+export function switchLocale(next: Locale): void {
+  if (next === locale) return;
+  window.localStorage.setItem(LOCALE_KEY, next);
+  window.location.reload();
+}
+
+export const t: Dictionary = dictionaries[locale];
+
+export const suggestionStatusLabels = t.labels.suggestionStatus;
+export const projectPhaseLabels = t.labels.projectPhase;
+export const processStatusLabels = t.labels.processStatus;
+export const kpiStatusLabels = t.labels.kpiStatus;
+export const frequencyLabels = t.labels.frequency;

@@ -7,3 +7,20 @@
     margin-left: 16rem;
   }
 }
+
+/* Print → PDF: hide chrome, keep only the report content */
+@media print {
+  aside,
+  header,
+  form,
+  button,
+  a[href="/notifications"] {
+    display: none !important;
+  }
+  body:has(aside.app-sidebar) main {
+    margin-left: 0;
+  }
+  main {
+    padding: 0;
+  }
+}

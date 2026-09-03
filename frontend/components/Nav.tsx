@@ -18,7 +18,7 @@ import {
   Workflow,
 } from "lucide-react";
 import { authFetch, clearTokens, isLoggedIn } from "@/lib/auth";
-import { t } from "@/lib/i18n";
+import { locale, switchLocale, t, type Locale } from "@/lib/i18n";
 
 const groups: {
   title: string | null;
@@ -87,6 +87,7 @@ export default function Nav() {
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
+    document.documentElement.lang = locale;
     if (!isLoggedIn()) return;
     authFetch("/api/v1/notifications/unread_count/")
       .then((r) => r.json())
@@ -136,13 +137,30 @@ export default function Nav() {
             </div>
           ))}
         </nav>
-        <button
-          onClick={logout}
-          className="flex items-center gap-3 border-t border-slate-200 px-6 py-3 text-sm text-slate-500 hover:text-slate-900"
-        >
-          <Power className="h-4 w-4" />
-          {t.nav.logout}
-        </button>
+        <div className="border-t border-slate-200">
+          <div className="flex items-center gap-1 px-6 pt-3">
+            {(["tr", "en"] as Locale[]).map((code) => (
+              <button
+                key={code}
+                onClick={() => switchLocale(code)}
+                className={`rounded px-2 py-0.5 text-xs font-semibold uppercase ${
+                  locale === code
+                    ? "bg-slate-900 text-white"
+                    : "text-slate-400 hover:text-slate-700"
+                }`}
+              >
+                {code}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={logout}
+            className="flex w-full items-center gap-3 px-6 py-3 text-sm text-slate-500 hover:text-slate-900"
+          >
+            <Power className="h-4 w-4" />
+            {t.nav.logout}
+          </button>
+        </div>
       </aside>
 
       {/* Mobile top bar */}
