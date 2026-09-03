@@ -43,7 +43,7 @@ services:
 
   celery:
     build: ./backend
-    command: celery -A config worker --loglevel=info
+    command: celery -A config worker --beat --loglevel=info
     environment: *backend_env
     volumes:
       - ./backend:/app
