@@ -1,9 +1,13 @@
+import csv
+
+from django.http import HttpResponse
 from rest_framework import filters, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.accounts.permissions import IsManagerOrAdmin
+from apps.exports import csv_escape
 from apps.kpis.models import KPI, KPIMeasurement
 from apps.kpis.serializers import (
     KPIMeasurementSerializer,
@@ -25,7 +29,7 @@ class KPIViewSet(viewsets.ModelViewSet):
     search_fields = ["name"]
     ordering_fields = ["name", "updated_at"]
 
-    READ_ACTIONS = ("list", "retrieve", "dashboard", "templates", "measurements")
+    READ_ACTIONS = ("list", "retrieve", "dashboard", "templates", "measurements", "export")
 
     def get_permissions(self):
         if self.action in self.READ_ACTIONS:
@@ -55,6 +59,28 @@ class KPIViewSet(viewsets.ModelViewSet):
         """Active KPIs with latest value, status and trend — one payload."""
         queryset = self.get_queryset().filter(is_active=True)
         return Response(KPISerializer(queryset, many=True).data)
+
+    @action(detail=True)
+    def export(self, request, pk=None):
+        """Measurement history as CSV."""
+        kpi = self.get_object()
+        response = HttpResponse(content_type="text/csv; charset=utf-8")
+        response["Content-Disposition"] = (
+            f'attachment; filename="kpi-{kpi.id}-measurements.csv"'
+        )
+        writer = csv.writer(response)
+        writer.writerow(["period", "value", "unit", "target", "note"])
+        for measurement in kpi.measurements.all():
+            writer.writerow(
+                [
+                    measurement.period,
+                    measurement.value,
+                    csv_escape(kpi.unit),
+                    kpi.target,
+                    csv_escape(measurement.note),
+                ]
+            )
+        return response
 
     @action(detail=True, methods=["get", "put"])
     def measurements(self, request, pk=None):

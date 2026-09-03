@@ -8,6 +8,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from celery.schedules import crontab
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-key")
@@ -41,6 +43,7 @@ TENANT_APPS = [
     "apps.improvements",
     "apps.audits",
     "apps.actions",
+    "apps.notifications",
 ]
 
 INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
@@ -165,3 +168,11 @@ CORS_ALLOWED_ORIGINS = [
 
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+CELERY_BEAT_SCHEDULE = {
+    "smart-alerts-daily": {
+        "task": "apps.notifications.tasks.run_smart_alerts",
+        # Daily at 06:07 UTC — off the :00 mark, before the workday starts
+        "schedule": crontab(hour=6, minute=7),
+    },
+}

@@ -111,6 +111,17 @@ class KPIApiTests(TenantTestCase):
         names = [k["name"] for k in self.client.get("/api/v1/kpis/dashboard/").json()]
         self.assertEqual(names, ["OEE"])
 
+    def test_csv_export_escapes_formula_notes(self):
+        KPIMeasurement.objects.create(
+            kpi=self.kpi, period="2026-08-01", value=Decimal("83"), note="=HYPERLINK(...)"
+        )
+        self.client.force_authenticate(self.member)
+        response = self.client.get(f"/api/v1/kpis/{self.kpi.id}/export/")
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn("'=HYPERLINK", content)
+        self.assertIn("2026-08-01", content)
+
     def test_measurement_history_readable(self):
         KPIMeasurement.objects.create(kpi=self.kpi, period="2026-08-01", value=Decimal("83"))
         self.client.force_authenticate(self.member)

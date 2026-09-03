@@ -1,6 +1,10 @@
+import csv
+
+from django.http import HttpResponse
 from django.utils import timezone
 from rest_framework import status as http_status
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,6 +15,7 @@ from apps.actions.models import Action
 from apps.actions.serializers import ActionSerializer
 from apps.audits.models import Audit
 from apps.audits.serializers import AuditSerializer
+from apps.exports import csv_escape
 from apps.improvements.models import ImprovementProject, Suggestion
 from apps.improvements.serializers import (
     ImprovementProjectSerializer,
@@ -72,6 +77,34 @@ class ActionViewSet(viewsets.ModelViewSet):
         if not _is_manager(self.request.user):
             raise PermissionDenied("Only managers can delete actions.")
         instance.delete()
+
+    @action(detail=False)
+    def export(self, request):
+        """The (filtered) action pool as CSV."""
+        response = HttpResponse(content_type="text/csv; charset=utf-8")
+        response["Content-Disposition"] = 'attachment; filename="actions.csv"'
+        writer = csv.writer(response)
+        writer.writerow(
+            ["title", "assignee", "due_date", "status", "source", "completed_at"]
+        )
+        for item in self.get_queryset():
+            source = (
+                (item.finding and f"finding: {item.finding.title}")
+                or (item.suggestion and f"suggestion: {item.suggestion.title}")
+                or (item.project and f"project: {item.project.title}")
+                or ""
+            )
+            writer.writerow(
+                [
+                    csv_escape(item.title),
+                    csv_escape(item.assignee.email if item.assignee else ""),
+                    item.due_date or "",
+                    item.status,
+                    csv_escape(source),
+                    item.completed_at or "",
+                ]
+            )
+        return response
 
 
 class MyWorkView(APIView):

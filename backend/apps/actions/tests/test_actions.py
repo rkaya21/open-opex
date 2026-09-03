@@ -72,6 +72,16 @@ class ActionApiTests(TenantTestCase):
         )
         self.assertIsNone(response.json()["completed_at"])
 
+    def test_csv_export_escapes_formulas(self):
+        Action.objects.create(title="=SUM(A1:A9)", assignee=self.member)
+        Action.objects.create(title="Normal iş", assignee=self.member)
+        self.client.force_authenticate(self.member)
+        response = self.client.get("/api/v1/actions/export/")
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn("'=SUM(A1:A9)", content)  # formula neutralized
+        self.assertIn("Normal iş", content)
+
     def test_mine_filter(self):
         Action.objects.create(title="Benim", assignee=self.member)
         Action.objects.create(title="Başkasının", assignee=self.other)
