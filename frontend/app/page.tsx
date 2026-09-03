@@ -1,33 +1,87 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  BarChart3,
+  ClipboardCheck,
+  Inbox,
+  Lightbulb,
+  ListChecks,
+  MapPin,
+  TrendingUp,
+  Workflow,
+} from "lucide-react";
+import Nav from "@/components/Nav";
+import { isLoggedIn } from "@/lib/auth";
 import { t } from "@/lib/i18n";
 
+const sections: {
+  title: string;
+  cards: {
+    href: string;
+    label: string;
+    icon: React.ElementType;
+    color: string;
+  }[];
+}[] = [
+  {
+    title: t.nav.groupCulture,
+    cards: [
+      { href: "/suggestions", label: t.nav.suggestions, icon: Lightbulb, color: "text-violet-600" },
+      { href: "/projects", label: t.nav.projects, icon: TrendingUp, color: "text-emerald-600" },
+      { href: "/my-work", label: t.nav.myWork, icon: Inbox, color: "text-pink-600" },
+    ],
+  },
+  {
+    title: t.nav.groupPerformance,
+    cards: [
+      { href: "/processes", label: t.nav.processes, icon: Workflow, color: "text-indigo-600" },
+      { href: "/kpis", label: t.nav.kpis, icon: BarChart3, color: "text-blue-600" },
+    ],
+  },
+  {
+    title: t.nav.groupField,
+    cards: [
+      { href: "/areas", label: t.nav.areas, icon: MapPin, color: "text-orange-600" },
+      { href: "/audits", label: t.nav.audits, icon: ClipboardCheck, color: "text-teal-600" },
+      { href: "/actions", label: t.nav.actions, icon: ListChecks, color: "text-red-600" },
+    ],
+  },
+];
+
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoggedIn()) router.push("/login");
+  }, [router]);
+
   return (
-    <main className="mx-auto max-w-4xl px-6 py-16">
-      <h1 className="text-3xl font-bold tracking-tight">open-opex</h1>
-      <p className="mt-2 text-slate-600">{t.home.tagline}</p>
-      <Link
-        href="/processes"
-        className="mt-6 inline-block rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
-      >
-        {t.home.openApp}
-      </Link>
-      <div className="mt-10 grid gap-4 sm:grid-cols-2">
-        {t.home.modules.map((mod) => (
-          <div
-            key={mod.title}
-            className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
-          >
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold">{mod.title}</h2>
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
-                {mod.phase}
-              </span>
+    <>
+      <Nav />
+      <main className="px-8 py-8">
+        {sections.map((section) => (
+          <section key={section.title} className="mb-10">
+            <h2 className="text-lg font-bold text-slate-800">{section.title}</h2>
+            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {section.cards.map((card) => (
+                <Link
+                  key={card.href}
+                  href={card.href}
+                  className="flex flex-col items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-8 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  <card.icon className={`h-9 w-9 ${card.color}`} strokeWidth={1.8} />
+                  <span className={`text-sm font-semibold ${card.color}`}>
+                    {card.label}
+                  </span>
+                </Link>
+              ))}
             </div>
-            <p className="mt-2 text-sm text-slate-600">{mod.description}</p>
-          </div>
+          </section>
         ))}
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

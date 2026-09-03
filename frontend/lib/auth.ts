@@ -60,11 +60,13 @@ export async function authFetch(
   if (!localStorage.getItem(ACCESS_KEY) && !localStorage.getItem(REFRESH_KEY)) {
     throw new AuthError();
   }
+  const isFormData = options.body instanceof FormData;
   const doFetch = () =>
     fetch(`${API_BASE_URL}${path}`, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
+        // Browsers set the multipart boundary themselves for FormData
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
         Authorization: `Bearer ${localStorage.getItem(ACCESS_KEY) ?? ""}`,
         ...options.headers,
       },

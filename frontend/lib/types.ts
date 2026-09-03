@@ -124,6 +124,113 @@ export interface ImprovementProject {
   updated_at: string;
 }
 
+export interface TenantUser {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: "admin" | "manager" | "member";
+}
+
+export interface Area {
+  id: number;
+  name: string;
+  code: string;
+  description: string;
+  responsible: number | null;
+  responsible_email: string | null;
+  is_active: boolean;
+  last_score: string | null;
+  created_at: string;
+}
+
+export interface ChecklistItem {
+  id: number;
+  text: string;
+  category: string;
+  order: number;
+}
+
+export interface ChecklistTemplate {
+  id: number;
+  name: string;
+  description: string;
+  is_active: boolean;
+  items: ChecklistItem[];
+  created_at: string;
+}
+
+export type AuditStatus = "planned" | "completed";
+
+export interface AuditAnswer {
+  id: number;
+  item: number;
+  score: number;
+  note: string;
+}
+
+export interface Audit {
+  id: number;
+  template: number;
+  template_name: string;
+  area: number;
+  area_code: string;
+  area_name: string;
+  auditor: number | null;
+  auditor_email: string | null;
+  scheduled_date: string;
+  status: AuditStatus;
+  completed_at: string | null;
+  score_percent: string | null;
+  answers: AuditAnswer[];
+  findings_count: number;
+  created_at: string;
+}
+
+export type FindingStatus = "open" | "closed";
+
+export interface Finding {
+  id: number;
+  title: string;
+  description: string;
+  audit: number | null;
+  area: number | null;
+  area_code: string | null;
+  photo: string | null;
+  status: FindingStatus;
+  created_by_email: string | null;
+  created_at: string;
+}
+
+export type ActionStatus = "open" | "in_progress" | "done";
+
+export interface Action {
+  id: number;
+  title: string;
+  description: string;
+  assignee: number | null;
+  assignee_email: string | null;
+  due_date: string | null;
+  status: ActionStatus;
+  finding: number | null;
+  finding_title: string | null;
+  suggestion: number | null;
+  suggestion_title: string | null;
+  project: number | null;
+  project_title: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MyWork {
+  actions: Action[];
+  audits: Audit[];
+  suggestions: Suggestion[];
+  projects: ImprovementProject[];
+  suggestions_to_evaluate?: Suggestion[];
+}
+
 export interface Paginated<T> {
   count: number;
   next: string | null;

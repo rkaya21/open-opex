@@ -18,7 +18,7 @@ export default function LoginPage() {
     setError("");
     try {
       await login(email, password);
-      router.push("/processes");
+      router.push("/");
     } catch {
       setError(t.login.invalid);
     } finally {

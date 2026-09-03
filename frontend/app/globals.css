@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+/* Pages render <Nav /> + <main>; when the desktop sidebar is present,
+   push the main content right without touching every page. */
+@media (min-width: 768px) {
+  body:has(aside.app-sidebar) main {
+    margin-left: 16rem;
+  }
+}
