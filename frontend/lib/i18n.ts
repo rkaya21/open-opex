@@ -1,12 +1,19 @@
 /** UI strings, centralized. Currently Turkish-only; Phase 4 will move this
  * behind a locale switch (TR/EN) without touching components. */
 
-import type { KpiStatus, ProcessStatus } from "@/lib/types";
+import type {
+  KpiStatus,
+  ProcessStatus,
+  ProjectPhase,
+  SuggestionStatus,
+} from "@/lib/types";
 
 export const t = {
   nav: {
     processes: "Süreçler",
     kpis: "KPI'lar",
+    suggestions: "Öneriler",
+    projects: "Projeler",
     logout: "Çıkış",
   },
   common: {
@@ -115,7 +122,75 @@ export const t = {
     createSubmit: "KPI oluştur",
     saveFailed: "Kaydetme başarısız",
   },
+  suggestions: {
+    title: "Öneriler",
+    newSuggestion: "Yeni öneri",
+    empty: "Henüz öneri yok — ilk fikri sen paylaş.",
+    loadFailed: "Öneriler yüklenemedi",
+    notFound: "Öneri bulunamadı",
+    formTitle: "Başlık",
+    formDescription: "Açıklama",
+    relatedProcess: "İlgili süreç (opsiyonel)",
+    submit: "Öneriyi gönder",
+    saveFailed: "Kaydetme başarısız",
+    submittedBy: "Öneren",
+    evaluatedBy: "Değerlendiren",
+    evaluationNote: "Değerlendirme notu",
+    notePlaceholder: "Not (opsiyonel)",
+    approve: "Onayla",
+    reject: "Reddet",
+    implement: "Uygulandı olarak işaretle",
+    toProject: "Projeye dönüştür",
+    actionFailed: "İşlem başarısız",
+    all: "Tümü",
+  },
+  projects: {
+    title: "İyileştirme projeleri",
+    newProject: "Yeni proje",
+    empty: "Henüz proje yok.",
+    loadFailed: "Projeler yüklenemedi",
+    notFound: "Proje bulunamadı",
+    editTitle: "Projeyi düzenle",
+    formTitle: "Başlık",
+    formDescription: "Açıklama",
+    relatedProcess: "İlgili süreç (opsiyonel)",
+    targetKpi: "Hedeflenen KPI (opsiyonel)",
+    fromSuggestion: "Kaynak öneri",
+    lead: "Proje lideri",
+    expectedBenefit: "Beklenen kazanç",
+    realizedBenefit: "Gerçekleşen kazanç",
+    advance: "Sonraki faza geçir",
+    saveFailed: "Kaydetme başarısız",
+    actionFailed: "İşlem başarısız",
+    createSubmit: "Proje oluştur",
+    saveSubmit: "Değişiklikleri kaydet",
+    none: "— yok —",
+    a3: {
+      title: "A3 Problem Çözme",
+      background: "Arka plan",
+      current_state: "Mevcut durum",
+      goal: "Hedef durum",
+      root_cause: "Kök neden analizi",
+      countermeasures: "Karşı önlemler",
+      follow_up: "Takip planı",
+    },
+  },
 } as const;
+
+export const suggestionStatusLabels: Record<SuggestionStatus, string> = {
+  submitted: "değerlendirilecek",
+  approved: "onaylandı",
+  rejected: "reddedildi",
+  implemented: "uygulandı",
+};
+
+export const projectPhaseLabels: Record<ProjectPhase, string> = {
+  plan: "Planla",
+  do: "Uygula",
+  check: "Kontrol et",
+  act: "Önlem al",
+  done: "Tamamlandı",
+};
 
 export const processStatusLabels: Record<ProcessStatus, string> = {
   draft: "taslak",

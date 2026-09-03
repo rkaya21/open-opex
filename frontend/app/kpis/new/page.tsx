@@ -14,6 +14,7 @@ export default function NewKpiPage() {
   const [values, setValues] = useState({
     name: "",
     description: "",
+    template_key: "",
     unit: "",
     direction: "higher" as "higher" | "lower",
     frequency: "monthly" as "daily" | "weekly" | "monthly",
@@ -49,6 +50,7 @@ export default function NewKpiPage() {
       ...prev,
       name: template.name,
       description: template.description,
+      template_key: template.key,
       unit: template.unit,
       direction: template.direction,
       frequency: template.frequency,

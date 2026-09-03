@@ -25,6 +25,12 @@ export default function Nav() {
         <Link href="/kpis" className="text-sm text-slate-600 hover:text-slate-900">
           {t.nav.kpis}
         </Link>
+        <Link href="/suggestions" className="text-sm text-slate-600 hover:text-slate-900">
+          {t.nav.suggestions}
+        </Link>
+        <Link href="/projects" className="text-sm text-slate-600 hover:text-slate-900">
+          {t.nav.projects}
+        </Link>
         <button
           onClick={logout}
           className="ml-auto text-sm text-slate-500 hover:text-slate-900"
