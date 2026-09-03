@@ -58,7 +58,9 @@ services:
       context: ./frontend
       target: dev
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      # Tenant is resolved from the hostname, so the browser must call the
+      # tenant's domain, not plain localhost.
+      NEXT_PUBLIC_API_URL: http://acme.localhost:${BACKEND_PORT:-8000}
     volumes:
       - ./frontend:/app
       - /app/node_modules
