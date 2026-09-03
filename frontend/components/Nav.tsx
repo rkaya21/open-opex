@@ -21,6 +21,9 @@ export default function Nav() {
         <Link href="/processes" className="text-sm text-slate-600 hover:text-slate-900">
           Processes
         </Link>
+        <Link href="/kpis" className="text-sm text-slate-600 hover:text-slate-900">
+          KPIs
+        </Link>
         <button
           onClick={logout}
           className="ml-auto text-sm text-slate-500 hover:text-slate-900"
