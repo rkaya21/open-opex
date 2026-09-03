@@ -31,6 +31,13 @@ export const t = {
     edit: "Düzenle",
     target: "hedef",
     optional: "opsiyonel",
+    exportCsv: "CSV indir",
+  },
+  notifications: {
+    title: "Bildirimler",
+    empty: "Bildirim yok.",
+    loadFailed: "Bildirimler yüklenemedi",
+    markAllRead: "Tümünü okundu işaretle",
   },
   home: {
     tagline: "Operasyonel Mükemmellik için açık kaynak, kendi sunucunda çalışan platform.",

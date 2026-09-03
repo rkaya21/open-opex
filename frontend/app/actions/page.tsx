@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
-import { AuthError, authFetch } from "@/lib/auth";
+import { AuthError, authFetch, downloadFile } from "@/lib/auth";
 import { t } from "@/lib/i18n";
 import type { Action, ActionStatus, Paginated, TenantUser } from "@/lib/types";
 
@@ -108,7 +108,20 @@ export default function ActionsPage() {
     <>
       <Nav />
       <main className="px-8 py-8">
-        <h1 className="text-2xl font-bold">{t.actions.title}</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">{t.actions.title}</h1>
+          <button
+            onClick={() =>
+              downloadFile(
+                `/api/v1/actions/export/${filter ? `?status=${filter}` : ""}`,
+                "actions.csv",
+              )
+            }
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+          >
+            {t.common.exportCsv}
+          </button>
+        </div>
 
         <form
           onSubmit={createAction}

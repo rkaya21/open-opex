@@ -231,6 +231,16 @@ export interface MyWork {
   suggestions_to_evaluate?: Suggestion[];
 }
 
+export interface AppNotification {
+  id: number;
+  title: string;
+  body: string;
+  link: string;
+  kind: "info" | "warning";
+  read: boolean;
+  created_at: string;
+}
+
 export interface Paginated<T> {
   count: number;
   next: string | null;

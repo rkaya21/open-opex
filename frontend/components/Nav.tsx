@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
+  Bell,
   ClipboardCheck,
   Home,
   Inbox,
@@ -15,7 +17,7 @@ import {
   TrendingUp,
   Workflow,
 } from "lucide-react";
-import { clearTokens } from "@/lib/auth";
+import { authFetch, clearTokens, isLoggedIn } from "@/lib/auth";
 import { t } from "@/lib/i18n";
 
 const groups: {
@@ -82,6 +84,15 @@ function NavLink({
 export default function Nav() {
   const router = useRouter();
   const pathname = usePathname();
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (!isLoggedIn()) return;
+    authFetch("/api/v1/notifications/unread_count/")
+      .then((r) => r.json())
+      .then((data: { count: number }) => setUnread(data.count))
+      .catch(() => {});
+  }, [pathname]);
 
   function logout() {
     clearTokens();
@@ -95,7 +106,20 @@ export default function Nav() {
     <>
       {/* Desktop sidebar */}
       <aside className="app-sidebar fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-slate-200 bg-white md:flex">
-        <div className="px-5 py-4 text-lg font-bold tracking-tight">open-opex</div>
+        <div className="flex items-center justify-between px-5 py-4">
+          <span className="text-lg font-bold tracking-tight">open-opex</span>
+          <Link
+            href="/notifications"
+            className="relative rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <Bell className="h-5 w-5" />
+            {unread > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+                {unread > 99 ? "99+" : unread}
+              </span>
+            )}
+          </Link>
+        </div>
         <nav className="grow space-y-4 overflow-y-auto px-3 pb-4">
           {groups.map((group) => (
             <div key={group.title ?? "top"}>
@@ -140,7 +164,15 @@ export default function Nav() {
                 {link.label}
               </Link>
             ))}
-          <button onClick={logout} className="ml-auto shrink-0 p-1 text-slate-500">
+          <Link href="/notifications" className="relative ml-auto shrink-0 p-1 text-slate-500">
+            <Bell className="h-4 w-4" />
+            {unread > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-600 px-0.5 text-[9px] font-bold text-white">
+                {unread > 99 ? "99+" : unread}
+              </span>
+            )}
+          </Link>
+          <button onClick={logout} className="shrink-0 p-1 text-slate-500">
             <LogOut className="h-4 w-4" />
           </button>
         </div>
