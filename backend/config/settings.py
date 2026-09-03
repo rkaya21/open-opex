@@ -38,6 +38,7 @@ TENANT_APPS = [
     "apps.accounts",
     "apps.processes",
     "apps.kpis",
+    "apps.improvements",
 ]
 
 INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]

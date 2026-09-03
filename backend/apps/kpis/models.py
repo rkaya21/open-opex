@@ -23,6 +23,12 @@ class KPI(models.Model):
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
+    template_key = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Set when created from a built-in template; lets other "
+        "modules find and auto-feed this KPI (e.g. implemented_suggestions).",
+    )
     unit = models.CharField(max_length=50, help_text="e.g. %, hours, pieces")
     direction = models.CharField(
         max_length=10, choices=Direction.choices, default=Direction.HIGHER_IS_BETTER

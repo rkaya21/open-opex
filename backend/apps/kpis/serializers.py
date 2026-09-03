@@ -33,6 +33,7 @@ class KPISerializer(serializers.ModelSerializer):
             "id",
             "name",
             "description",
+            "template_key",
             "unit",
             "direction",
             "frequency",
