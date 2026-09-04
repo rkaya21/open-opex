@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import LessonCategoryChip from "@/components/LessonCategoryChip";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
 import RecordCard from "@/components/RecordCard";
@@ -90,9 +91,10 @@ export default function LessonsPage() {
               `${lesson.duration_minutes} dk · ${lesson.participant_emails.length} katılımcı`,
             ]}
             footerRight={
-              <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
-                {lesson.category_label}
-              </span>
+              <LessonCategoryChip
+                category={lesson.category}
+                label={lesson.category_label}
+              />
             }
           />
         ))}

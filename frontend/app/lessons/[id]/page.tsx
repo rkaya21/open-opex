@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Clock, Tag, User, Users } from "lucide-react";
+import LessonCategoryChip from "@/components/LessonCategoryChip";
 import Nav from "@/components/Nav";
 import { AuthError, authFetch } from "@/lib/auth";
 import { locale, t } from "@/lib/i18n";
@@ -46,9 +47,10 @@ export default function LessonDetailPage() {
     <>
       <Nav />
       <main className="max-w-3xl px-8 py-8">
-        <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-          {lesson.category_label}
-        </span>
+        <LessonCategoryChip
+          category={lesson.category}
+          label={lesson.category_label}
+        />
         <h1 className="mt-2 text-2xl font-bold">{lesson.topic}</h1>
 
         <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-slate-600">

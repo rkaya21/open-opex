@@ -291,7 +291,28 @@ export interface AsakaiItem {
   created_at: string;
 }
 
-export type LessonCategory = "basic" | "problem" | "improvement";
+export type LessonCategory =
+  | "employee_satisfaction"
+  | "maintenance"
+  | "quality"
+  | "new_product"
+  | "new_process"
+  | "kaizen"
+  | "five_s"
+  | "poka_yoke"
+  | "competency"
+  | "motivation"
+  | "hse"
+  | "capacity_gain"
+  | "labor_gain"
+  | "energy_gain"
+  | "space_gain"
+  | "material_gain"
+  | "ergonomics"
+  | "customer_satisfaction"
+  | "environment"
+  | "stock_transport"
+  | "scrap_rework";
 
 export interface OnePointLesson {
   id: number;

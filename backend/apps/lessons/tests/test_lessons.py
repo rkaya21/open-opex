@@ -18,7 +18,7 @@ class OnePointLessonApiTests(TenantTestCase):
 
     def _payload(self, **overrides):
         data = {
-            "category": "basic",
+            "category": "quality",
             "topic": "Vinç kancası güvenli kullanımı",
             "content": "Kanca kilidi kontrolü ve yük bağlama kuralları.",
             "held_at": "2026-09-04T14:55:00Z",
@@ -34,7 +34,7 @@ class OnePointLessonApiTests(TenantTestCase):
         self.assertEqual(response.status_code, 201, response.json())
         body = response.json()
         self.assertEqual(body["trainer_email"], "worker@acme.com")
-        self.assertEqual(body["category_label"], "Temel Bilgi")
+        self.assertEqual(body["category_label"], "Kalite")
         self.assertEqual(len(body["participant_emails"]), 3)
 
     def test_explicit_trainer_is_kept(self):
@@ -83,10 +83,10 @@ class OnePointLessonApiTests(TenantTestCase):
         self.client.post("/api/v1/lessons/", self._payload(), format="json")
         self.client.post(
             "/api/v1/lessons/",
-            self._payload(category="improvement", topic="Kaizen örneği"),
+            self._payload(category="kaizen", topic="Kaizen örneği"),
             format="json",
         )
-        response = self.client.get("/api/v1/lessons/?category=improvement")
+        response = self.client.get("/api/v1/lessons/?category=kaizen")
         self.assertEqual(response.json()["count"], 1)
         self.assertEqual(response.json()["results"][0]["topic"], "Kaizen örneği")
 
