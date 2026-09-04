@@ -44,6 +44,20 @@ If a default port is taken on your machine, override it:
 BACKEND_PORT=8001 FRONTEND_PORT=3001 docker compose up
 ```
 
+## Production deployment
+
+```bash
+cp .env.example .env   # fill in SECRET_KEY, POSTGRES_PASSWORD, ALLOWED_HOSTS…
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+This runs gunicorn with `DEBUG=0` behind an nginx reverse proxy (port 80) that
+also serves static files and uploaded media; the Next.js frontend is a
+standalone production build making same-origin API calls. Put TLS termination
+(caddy, certbot, a load balancer) in front of nginx. Bootstrap tenants with
+the same `bootstrap_tenant` command via
+`docker compose -f docker-compose.prod.yml exec backend …`.
+
 ## License
 
 Apache-2.0
