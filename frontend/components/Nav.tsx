@@ -15,9 +15,10 @@ import {
   MapPin,
   Power,
   TrendingUp,
+  UserCog,
   Workflow,
 } from "lucide-react";
-import { authFetch, clearTokens, isLoggedIn } from "@/lib/auth";
+import { authFetch, clearTokens, getStoredRole, isLoggedIn } from "@/lib/auth";
 import { locale, switchLocale, t, type Locale } from "@/lib/i18n";
 
 const groups: {
@@ -55,6 +56,11 @@ const groups: {
   },
 ];
 
+const adminGroup = {
+  title: t.nav.groupAdmin,
+  links: [{ href: "/settings/users", label: t.nav.users, icon: UserCog }],
+};
+
 function NavLink({
   href,
   label,
@@ -85,9 +91,11 @@ export default function Nav() {
   const router = useRouter();
   const pathname = usePathname();
   const [unread, setUnread] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     document.documentElement.lang = locale;
+    setIsAdmin(getStoredRole() === "admin");
     if (!isLoggedIn()) return;
     authFetch("/api/v1/notifications/unread_count/")
       .then((r) => r.json())
@@ -122,7 +130,7 @@ export default function Nav() {
           </Link>
         </div>
         <nav className="grow space-y-4 overflow-y-auto px-3 pb-4">
-          {groups.map((group) => (
+          {[...groups, ...(isAdmin ? [adminGroup] : [])].map((group) => (
             <div key={group.title ?? "top"}>
               {group.title && (
                 <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
