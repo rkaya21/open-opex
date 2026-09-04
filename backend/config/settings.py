@@ -66,6 +66,7 @@ TENANT_APPS = [
     "apps.actions",
     "apps.notifications",
     "apps.meetings",
+    "apps.lessons",
 ]
 
 INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]

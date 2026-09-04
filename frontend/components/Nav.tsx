@@ -53,7 +53,7 @@ const groups: { title: string | null; links: NavItem[] }[] = [
       { href: "/actions", label: t.home.cards.tasks, icon: CheckCircle2 },
       { href: "/suggestions", label: t.home.cards.suggestions, icon: MessageSquare },
       { label: t.home.cards.beforeAfter, icon: Columns2 },
-      { label: t.home.cards.tnd, icon: BookOpen },
+      { href: "/lessons", label: t.home.cards.tnd, icon: BookOpen },
       { href: "/projects", label: t.home.cards.kobetsu, icon: TrendingUp },
       { href: "/asakai", label: t.home.cards.asakai, icon: DoorOpen },
       { href: "/asakai-items", label: t.home.cards.asakaiItems, icon: ListTodo },
