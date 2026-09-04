@@ -12,7 +12,11 @@ from apps.audits.models import (
 
 class AreaSerializer(serializers.ModelSerializer):
     responsible_email = serializers.CharField(source="responsible.email", read_only=True)
+    checklist_template_name = serializers.CharField(
+        source="checklist_template.name", read_only=True
+    )
     last_score = serializers.SerializerMethodField()
+    last_audit_date = serializers.SerializerMethodField()
 
     class Meta:
         model = Area
@@ -23,19 +27,29 @@ class AreaSerializer(serializers.ModelSerializer):
             "description",
             "responsible",
             "responsible_email",
+            "checklist_template",
+            "checklist_template_name",
             "is_active",
             "last_score",
+            "last_audit_date",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
 
-    def get_last_score(self, obj: Area) -> str | None:
-        last = (
+    def _last_completed(self, obj: Area):
+        return (
             obj.audits.filter(status=Audit.Status.COMPLETED)
             .order_by("-completed_at")
             .first()
         )
+
+    def get_last_score(self, obj: Area) -> str | None:
+        last = self._last_completed(obj)
         return str(last.score_percent) if last else None
+
+    def get_last_audit_date(self, obj: Area) -> str | None:
+        last = self._last_completed(obj)
+        return last.completed_at.date().isoformat() if last else None
 
 
 class ChecklistItemSerializer(serializers.ModelSerializer):
@@ -95,6 +109,9 @@ class AuditSerializer(serializers.ModelSerializer):
     area_code = serializers.CharField(source="area.code", read_only=True)
     area_name = serializers.CharField(source="area.name", read_only=True)
     auditor_email = serializers.CharField(source="auditor.email", read_only=True)
+    participant_emails = serializers.SlugRelatedField(
+        source="participants", slug_field="email", many=True, read_only=True
+    )
     answers = AuditAnswerSerializer(many=True, read_only=True)
     findings_count = serializers.IntegerField(source="findings.count", read_only=True)
 
@@ -102,6 +119,8 @@ class AuditSerializer(serializers.ModelSerializer):
         model = Audit
         fields = [
             "id",
+            "name",
+            "audit_type",
             "template",
             "template_name",
             "area",
@@ -109,6 +128,9 @@ class AuditSerializer(serializers.ModelSerializer):
             "area_name",
             "auditor",
             "auditor_email",
+            "participants",
+            "participant_emails",
+            "notes",
             "scheduled_date",
             "status",
             "completed_at",
@@ -118,6 +140,12 @@ class AuditSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "status", "completed_at", "score_percent", "created_at"]
+
+    def create(self, validated_data):
+        # The auditor defaults to whoever schedules the audit
+        if not validated_data.get("auditor"):
+            validated_data["auditor"] = self.context["request"].user
+        return super().create(validated_data)
 
 
 MAX_PHOTO_BYTES = 5 * 1024 * 1024

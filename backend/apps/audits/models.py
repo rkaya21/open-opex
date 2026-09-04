@@ -18,6 +18,14 @@ class Area(models.Model):
         on_delete=models.SET_NULL,
         related_name="responsible_areas",
     )
+    checklist_template = models.ForeignKey(
+        "audits.ChecklistTemplate",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="areas",
+        help_text="Default question set used when auditing this area",
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -73,6 +81,20 @@ class Audit(models.Model):
         PLANNED = "planned", "Planned"
         COMPLETED = "completed", "Completed"
 
+    class Type(models.TextChoices):
+        ANNOUNCED = "announced", "Haberli Denetim"
+        UNANNOUNCED = "unannounced", "Habersiz Denetim"
+
+    name = models.CharField(
+        max_length=200, blank=True, help_text="Auto-generated from area + template when empty"
+    )
+    audit_type = models.CharField(
+        max_length=12, choices=Type.choices, default=Type.ANNOUNCED
+    )
+    participants = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="participated_audits"
+    )
+    notes = models.TextField(blank=True)
     template = models.ForeignKey(
         ChecklistTemplate, on_delete=models.PROTECT, related_name="audits"
     )
@@ -99,7 +121,12 @@ class Audit(models.Model):
         ordering = ["-scheduled_date", "-id"]
 
     def __str__(self) -> str:
-        return f"{self.template.name} @ {self.area.code} ({self.scheduled_date})"
+        return self.name or f"{self.template.name} @ {self.area.code}"
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.name:
+            self.name = f"{self.area.name} — {self.template.name}"
+        super().save(*args, **kwargs)
 
     def complete(self) -> None:
         """Compute the score from answers and close the audit."""

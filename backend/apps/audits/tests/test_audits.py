@@ -100,6 +100,49 @@ class AuditFlowTests(TenantTestCase):
         response = self.client.get(f"/api/v1/areas/{self.area.id}/")
         self.assertEqual(response.json()["last_score"], "80.0")
 
+    def test_audit_autoname_and_defaults(self):
+        self.client.force_authenticate(self.manager)
+        response = self.client.post(
+            "/api/v1/audits/",
+            {
+                "template": self.template.id,
+                "area": self.area.id,
+                "scheduled_date": "2026-09-12",
+                "participants": [self.member.id],
+                "audit_type": "unannounced",
+                "notes": "Aylık habersiz denetim",
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        body = response.json()
+        self.assertEqual(body["name"], f"{self.area.name} — {self.template.name}")
+        self.assertEqual(body["auditor_email"], "lead@acme.com")  # defaults to creator
+        self.assertEqual(body["audit_type"], "unannounced")
+        self.assertEqual(body["participant_emails"], ["worker@acme.com"])
+
+    def test_area_carries_default_question_set(self):
+        self.client.force_authenticate(self.manager)
+        response = self.client.post(
+            "/api/v1/areas/",
+            {
+                "name": "Kaynakhane",
+                "code": "SAHA-09",
+                "checklist_template": self.template.id,
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        body = response.json()
+        self.assertEqual(body["checklist_template"], self.template.id)
+        self.assertEqual(body["checklist_template_name"], self.template.name)
+        self.assertIsNone(body["last_audit_date"])
+
+    def test_area_last_audit_date_surfaces(self):
+        self.client.force_authenticate(self.member)
+        self._answer_all([4, 4, 4, 4])
+        self.client.post(f"/api/v1/audits/{self.audit.id}/complete/")
+        response = self.client.get(f"/api/v1/areas/{self.area.id}/")
+        self.assertIsNotNone(response.json()["last_audit_date"])
+
     def test_seed_5s_checklist_idempotent(self):
         call_command("seed_5s_checklist")
         call_command("seed_5s_checklist")
