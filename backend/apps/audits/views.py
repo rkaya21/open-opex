@@ -31,7 +31,7 @@ class AreaViewSet(ManagerWritesViewSet):
     serializer_class = AreaSerializer
 
     def get_queryset(self):
-        queryset = Area.objects.select_related("responsible")
+        queryset = Area.objects.select_related("responsible", "checklist_template")
         if self.request.query_params.get("active") == "true":
             queryset = queryset.filter(is_active=True)
         return queryset

@@ -19,6 +19,7 @@ __pycache__/
 htmlcov/
 coverage.xml
 staticfiles/
+media/
 db.sqlite3
 celerybeat-schedule
 celerybeat.pid

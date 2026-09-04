@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ChevronLeft } from "lucide-react";
+import { ChevronLeft, Save } from "lucide-react";
 import Nav from "@/components/Nav";
-import { AuthError, authFetch } from "@/lib/auth";
+import { AuthError, authFetch, getStoredEmail } from "@/lib/auth";
 import { t } from "@/lib/i18n";
 import type { Area, ChecklistTemplate, Paginated, TenantUser } from "@/lib/types";
 
@@ -15,10 +15,12 @@ export default function NewAuditPage() {
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([]);
   const [users, setUsers] = useState<TenantUser[]>([]);
   const [form, setForm] = useState({
-    template: "" as number | "",
     area: "" as number | "",
-    auditor: "" as number | "",
-    scheduled_date: "",
+    template: "" as number | "",
+    participants: [] as number[],
+    audit_type: "announced" as "announced" | "unannounced",
+    scheduled_date: new Date().toISOString().slice(0, 10),
+    notes: "",
   });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -45,6 +47,13 @@ export default function NewAuditPage() {
       });
   }, [router]);
 
+  // Denetim adı önizlemesi: saha + soru setinden otomatik
+  const autoName = useMemo(() => {
+    const area = areas.find((candidate) => candidate.id === form.area);
+    const template = templates.find((candidate) => candidate.id === form.template);
+    return area && template ? `${area.name} — ${template.name}` : "";
+  }, [areas, templates, form.area, form.template]);
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
@@ -53,10 +62,12 @@ export default function NewAuditPage() {
       const response = await authFetch("/api/v1/audits/", {
         method: "POST",
         body: JSON.stringify({
-          template: form.template,
           area: form.area,
-          auditor: form.auditor === "" ? null : form.auditor,
+          template: form.template,
+          participants: form.participants,
+          audit_type: form.audit_type,
           scheduled_date: form.scheduled_date,
+          notes: form.notes,
         }),
       });
       if (!response.ok) {
@@ -82,14 +93,61 @@ export default function NewAuditPage() {
   return (
     <>
       <Nav />
-      <main className="max-w-2xl px-8 py-8">
+      <main className="max-w-3xl px-8 py-8">
         <div className="relative flex items-center justify-center">
           <Link href="/audits" className="absolute left-0 text-slate-600">
             <ChevronLeft className="h-6 w-6" />
           </Link>
           <h1 className="text-xl font-bold">{t.audits.newAudit}</h1>
         </div>
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+
+        <div className="mt-6 flex justify-end">
+          <button
+            type="submit"
+            form="new-audit"
+            disabled={busy}
+            className="flex items-center gap-2 text-sm font-semibold text-blue-800 hover:text-blue-600 disabled:opacity-50"
+          >
+            <Save className="h-4 w-4" />
+            {busy ? t.common.saving : t.common.save}
+          </button>
+        </div>
+
+        <form id="new-audit" onSubmit={handleSubmit} className="mt-4 space-y-5">
+          <div>
+            <label className="text-sm font-medium">{t.audits.auditName}</label>
+            <input
+              disabled
+              value={autoName}
+              placeholder={t.audits.autoNameHint}
+              className={`${inputClass} bg-slate-50 text-slate-500`}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">{t.audits.area}</label>
+            <select
+              required
+              value={form.area}
+              onChange={(e) => {
+                const areaId = e.target.value === "" ? "" : Number(e.target.value);
+                const area = areas.find((candidate) => candidate.id === areaId);
+                setForm({
+                  ...form,
+                  area: areaId,
+                  // Sahaya atanmış soru seti varsa otomatik seç
+                  template: area?.checklist_template ?? form.template,
+                });
+              }}
+              className={inputClass}
+            >
+              <option value="">—</option>
+              {areas.map((area) => (
+                <option key={area.id} value={area.id}>
+                  {area.code} — {area.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="text-sm font-medium">{t.audits.template}</label>
             <select
@@ -112,49 +170,56 @@ export default function NewAuditPage() {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium">{t.audits.area}</label>
+            <label className="text-sm font-medium">{t.audits.auditor}</label>
+            <input
+              disabled
+              value={getStoredEmail() ?? ""}
+              className={`${inputClass} bg-slate-50 text-slate-500`}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">{t.audits.participants}</label>
             <select
-              required
-              value={form.area}
+              multiple
+              size={4}
+              value={form.participants.map(String)}
               onChange={(e) =>
                 setForm({
                   ...form,
-                  area: e.target.value === "" ? "" : Number(e.target.value),
+                  participants: Array.from(e.target.selectedOptions).map((option) =>
+                    Number(option.value),
+                  ),
                 })
               }
               className={inputClass}
             >
-              <option value="">—</option>
-              {areas.map((area) => (
-                <option key={area.id} value={area.id}>
-                  {area.code} — {area.name}
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.email}
                 </option>
               ))}
             </select>
+            <p className="mt-1 text-xs text-slate-400">{t.audits.participantsHint}</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-medium">{t.audits.auditor}</label>
+              <label className="text-sm font-medium">{t.audits.auditType}</label>
               <select
-                value={form.auditor}
+                value={form.audit_type}
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    auditor: e.target.value === "" ? "" : Number(e.target.value),
+                    audit_type: e.target.value as "announced" | "unannounced",
                   })
                 }
                 className={inputClass}
               >
-                <option value="">—</option>
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.email}
-                  </option>
-                ))}
+                <option value="announced">{t.audits.typeAnnounced}</option>
+                <option value="unannounced">{t.audits.typeUnannounced}</option>
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium">{t.audits.date}</label>
+              <label className="text-sm font-medium">{t.audits.auditDate}</label>
               <input
                 type="date"
                 required
@@ -164,17 +229,16 @@ export default function NewAuditPage() {
               />
             </div>
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={busy}
-              className="flex items-center gap-2 text-sm font-semibold text-blue-800 hover:text-blue-600 disabled:opacity-50"
-            >
-              <ArrowRight className="h-4 w-4" />
-              {t.common.send}
-            </button>
+          <div>
+            <label className="text-sm font-medium">{t.audits.description}</label>
+            <textarea
+              rows={4}
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              className={inputClass}
+            />
           </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
         </form>
       </main>
     </>
