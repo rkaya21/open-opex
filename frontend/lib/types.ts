@@ -291,6 +291,53 @@ export interface AsakaiItem {
   created_at: string;
 }
 
+export type GainCategory =
+  | "capacity"
+  | "labor"
+  | "energy"
+  | "space"
+  | "material"
+  | "stock_transport"
+  | "scrap_rework"
+  | "quality"
+  | "safety"
+  | "environment"
+  | "ergonomics"
+  | "";
+
+export interface BeforeAfterPhoto {
+  id: number;
+  form: number;
+  kind: "before" | "after";
+  image: string;
+  caption: string;
+  created_at: string;
+}
+
+export interface BeforeAfterForm {
+  id: number;
+  start_date: string;
+  end_date: string | null;
+  category: GainCategory;
+  category_label: string;
+  problem: string;
+  before_note: string;
+  after_note: string;
+  cost: string | null;
+  cost_note: string;
+  budget_code: string;
+  gain_continuity: "continuous" | "one_time" | "";
+  one_time_gain: string | null;
+  gain_note: string;
+  gain_category: GainCategory;
+  gain_category_label: string;
+  process: number | null;
+  process_code: string | null;
+  photos: BeforeAfterPhoto[];
+  created_by_email: string | null;
+  created_at: string;
+}
+
 export type LessonCategory =
   | "employee_satisfaction"
   | "maintenance"

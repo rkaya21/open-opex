@@ -36,7 +36,7 @@ const sections: { title: string; cards: ModuleCard[] }[] = [
     cards: [
       { label: t.home.cards.tasks, icon: CheckCircle2, color: "text-pink-600", href: "/actions" },
       { label: t.home.cards.suggestions, icon: MessageSquare, color: "text-violet-600", href: "/suggestions" },
-      { label: t.home.cards.beforeAfter, icon: Columns2, color: "text-indigo-500" },
+      { label: t.home.cards.beforeAfter, icon: Columns2, color: "text-indigo-500", href: "/beforeafter" },
       { label: t.home.cards.tnd, icon: BookOpen, color: "text-green-600", href: "/lessons" },
       { label: t.home.cards.kobetsu, icon: TrendingUp, color: "text-emerald-600", href: "/projects" },
       { label: t.home.cards.asakai, icon: DoorOpen, color: "text-blue-600", href: "/asakai" },
