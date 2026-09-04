@@ -56,6 +56,9 @@ const tr = {
     daysLate: "gün gecikme",
     send: "Gönder",
     status: "Durum",
+    saved: "Kaydedildi",
+    updated: "Güncellendi",
+    done: "İşlem tamamlandı",
   },
   notifications: {
     title: "Bildirimler",
@@ -596,6 +599,9 @@ const en: Dictionary = {
     daysLate: "days late",
     send: "Send",
     status: "Status",
+    saved: "Saved",
+    updated: "Updated",
+    done: "Done",
   },
   notifications: {
     title: "Notifications",

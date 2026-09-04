@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import LessonCategoryChip from "@/components/LessonCategoryChip";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
+import { ListSkeleton } from "@/components/Skeleton";
 import RecordCard from "@/components/RecordCard";
 import { AuthError, authFetch } from "@/lib/auth";
 import { locale, t } from "@/lib/i18n";
@@ -67,7 +68,7 @@ export default function LessonsPage() {
       >
         {error && <p className="text-sm text-red-600">{error}</p>}
         {lessons === null && !error && (
-          <p className="text-sm text-slate-500">{t.common.loading}</p>
+          <ListSkeleton />
         )}
         {lessons !== null && lessons.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.lessons.empty}</p>

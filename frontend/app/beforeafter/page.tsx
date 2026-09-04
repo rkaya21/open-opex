@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
+import { ListSkeleton } from "@/components/Skeleton";
 import RecordCard from "@/components/RecordCard";
 import { AuthError, authFetch } from "@/lib/auth";
 import { locale, t } from "@/lib/i18n";
@@ -68,7 +69,7 @@ export default function BeforeAfterPage() {
       >
         {error && <p className="text-sm text-red-600">{error}</p>}
         {forms === null && !error && (
-          <p className="text-sm text-slate-500">{t.common.loading}</p>
+          <ListSkeleton />
         )}
         {forms !== null && forms.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.beforeAfter.empty}</p>

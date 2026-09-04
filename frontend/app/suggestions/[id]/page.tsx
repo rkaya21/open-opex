@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import CategoryChip from "@/components/CategoryChip";
 import Nav from "@/components/Nav";
+import { useToast } from "@/components/Toast";
 import SuggestionStatusBadge from "@/components/SuggestionStatusBadge";
 import { AuthError, authFetch } from "@/lib/auth";
 import { t } from "@/lib/i18n";
@@ -12,6 +13,7 @@ import type { Suggestion } from "@/lib/types";
 
 export default function SuggestionDetailPage() {
   const router = useRouter();
+  const toast = useToast();
   const { id } = useParams<{ id: string }>();
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
   const [note, setNote] = useState("");
@@ -45,11 +47,12 @@ export default function SuggestionDetailPage() {
       });
       const body = await response.json();
       if (!response.ok) {
-        setError(body.detail ?? t.suggestions.actionFailed);
+        toast.error(body.detail ?? t.suggestions.actionFailed);
         return;
       }
       setSuggestion(body);
       setNote("");
+      toast.success(t.common.updated);
     } catch (err) {
       if (err instanceof AuthError) router.push("/login");
     } finally {

@@ -24,6 +24,7 @@ import {
   Workflow,
   Zap,
 } from "lucide-react";
+import Logo from "@/components/Logo";
 import {
   authFetch,
   clearTokens,
@@ -99,7 +100,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       href={item.href}
       className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm ${
         active
-          ? "bg-slate-100 font-semibold text-slate-900"
+          ? "bg-teal-50 font-semibold text-teal-700"
           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
       }`}
     >
@@ -143,7 +144,7 @@ export default function Nav() {
       <aside className="app-sidebar fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-slate-200 bg-white md:flex">
         <div className="border-b border-slate-100 px-5 py-4">
           <div className="flex items-start justify-between">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-lg font-bold text-slate-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-teal-100 text-lg font-bold text-teal-700">
               {(email?.[0] ?? "o").toUpperCase()}
             </div>
             <div className="flex items-center gap-1">
@@ -161,8 +162,10 @@ export default function Nav() {
               </Link>
             </div>
           </div>
-          <p className="mt-2 text-sm font-bold tracking-tight">open-opex</p>
-          {email && <p className="truncate text-xs text-slate-500">{email}</p>}
+          <div className="mt-2">
+            <Logo size={24} />
+          </div>
+          {email && <p className="mt-1 truncate text-xs text-slate-500">{email}</p>}
         </div>
         <nav className="grow space-y-4 overflow-y-auto px-3 pb-4">
           {allGroups.map((group) => (
@@ -213,7 +216,9 @@ export default function Nav() {
       {/* Mobile top bar — only working modules */}
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white md:hidden">
         <div className="flex items-center gap-2 overflow-x-auto px-4 py-2">
-          <span className="mr-2 shrink-0 font-bold">open-opex</span>
+          <span className="mr-2 shrink-0">
+            <Logo size={22} />
+          </span>
           {allGroups
             .flatMap((group) => group.links)
             .filter((link): link is NavItem & { href: string } => !!link.href)
