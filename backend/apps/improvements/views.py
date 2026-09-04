@@ -38,8 +38,11 @@ class SuggestionViewSet(viewsets.ModelViewSet):
         queryset = Suggestion.objects.select_related(
             "submitted_by", "evaluated_by", "process"
         )
-        if status_param := self.request.query_params.get("status"):
+        params = self.request.query_params
+        if status_param := params.get("status"):
             queryset = queryset.filter(status=status_param)
+        if category := params.get("category"):
+            queryset = queryset.filter(category=category)
         return queryset
 
     def perform_create(self, serializer) -> None:

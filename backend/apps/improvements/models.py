@@ -17,8 +17,28 @@ class Suggestion(models.Model):
         REJECTED = "rejected", "Rejected"
         IMPLEMENTED = "implemented", "Implemented"
 
+    class Category(models.TextChoices):
+        SEC = "sec", "SEÇ (Sağlık-Emniyet-Çevre)"
+        KAIZEN = "kaizen", "A3 Kaizen / Kobetsu Kaizen"
+        RESPECT = "respect", "İnsana Saygı"
+        REASONABLE = "reasonable", "Makul Öneri"
+        AUTONOMOUS = "autonomous", "Otonom Bakım"
+
     title = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True)
+    category = models.CharField(
+        max_length=20, choices=Category.choices, blank=True
+    )
+    problem = models.TextField(blank=True, help_text="Mevcut durum / problem")
+    solution = models.TextField(blank=True, help_text="Çözüm önerisi")
+    estimated_cost = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True
+    )
+    cost_note = models.TextField(blank=True)
+    estimated_benefit = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True
+    )
+    benefit_note = models.TextField(blank=True)
     process = models.ForeignKey(
         "processes.Process",
         null=True,

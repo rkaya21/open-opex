@@ -104,6 +104,37 @@ class SuggestionApiTests(TenantTestCase):
         self.assertEqual(response.json()["status"], "implemented")
         self.assertIsNotNone(response.json()["implemented_at"])
 
+    def test_full_idea_form_roundtrip(self):
+        self.client.force_authenticate(self.member)
+        response = self.client.post(
+            "/api/v1/suggestions/",
+            {
+                "title": "LED armatür dönüşümü",
+                "category": "sec",
+                "problem": "Mevcut aydınlatma yetersiz ve enerji tüketimi yüksek.",
+                "solution": "Tüm armatürler LED ile değiştirilsin.",
+                "estimated_cost": "12000",
+                "estimated_benefit": "30000",
+                "benefit_note": "Yıllık enerji tasarrufu",
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        body = response.json()
+        self.assertEqual(body["category"], "sec")
+        self.assertEqual(body["solution"], "Tüm armatürler LED ile değiştirilsin.")
+        self.assertEqual(body["estimated_benefit"], "30000.00")
+
+    def test_filter_by_category(self):
+        self._submit()
+        self.client.force_authenticate(self.member)
+        self.client.post(
+            "/api/v1/suggestions/",
+            {"title": "SEÇ fikri", "category": "sec", "problem": "x", "solution": "y"},
+        )
+        response = self.client.get("/api/v1/suggestions/?category=sec")
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(response.json()["results"][0]["title"], "SEÇ fikri")
+
     def test_filter_by_status(self):
         self._submit()
         approved_id = self._submit(self.other)
