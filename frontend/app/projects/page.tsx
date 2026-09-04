@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
+import { ListSkeleton } from "@/components/Skeleton";
 import PhaseBadge from "@/components/PhaseBadge";
 import RecordCard from "@/components/RecordCard";
 import { AuthError, authFetch } from "@/lib/auth";
@@ -67,7 +68,7 @@ export default function ProjectsPage() {
       >
         {error && <p className="text-sm text-red-600">{error}</p>}
         {projects === null && !error && (
-          <p className="text-sm text-slate-500">{t.common.loading}</p>
+          <ListSkeleton />
         )}
         {projects !== null && projects.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.projects.empty}</p>

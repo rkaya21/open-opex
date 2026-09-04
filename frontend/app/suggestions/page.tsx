@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import CategoryChip from "@/components/CategoryChip";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
+import { ListSkeleton } from "@/components/Skeleton";
 import RecordCard from "@/components/RecordCard";
 import SuggestionStatusBadge from "@/components/SuggestionStatusBadge";
 import { AuthError, authFetch } from "@/lib/auth";
@@ -99,7 +100,7 @@ export default function SuggestionsPage() {
       >
         {error && <p className="text-sm text-red-600">{error}</p>}
         {suggestions === null && !error && (
-          <p className="text-sm text-slate-500">{t.common.loading}</p>
+          <ListSkeleton />
         )}
         {suggestions !== null && suggestions.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.suggestions.empty}</p>

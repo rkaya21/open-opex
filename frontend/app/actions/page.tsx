@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
 import RecordCard from "@/components/RecordCard";
+import { ListSkeleton } from "@/components/Skeleton";
+import { useToast } from "@/components/Toast";
 import { AuthError, authFetch, downloadFile } from "@/lib/auth";
 import { locale, t } from "@/lib/i18n";
 import type { Action, ActionStatus, Paginated } from "@/lib/types";
@@ -38,6 +40,7 @@ function formatDate(value: string | null): string {
 
 export default function ActionsPage() {
   const router = useRouter();
+  const toast = useToast();
   const [actions, setActions] = useState<Action[] | null>(null);
   const [count, setCount] = useState<number | null>(null);
   const [filter, setFilter] = useState<ActionStatus | "">("");
@@ -71,9 +74,10 @@ export default function ActionsPage() {
         body: JSON.stringify({ status }),
       });
       if (!response.ok) {
-        setError(t.actions.saveFailed);
+        toast.error(t.actions.saveFailed);
         return;
       }
+      toast.success(t.common.updated);
       await load();
     } catch (err) {
       if (err instanceof AuthError) router.push("/login");
@@ -123,7 +127,7 @@ export default function ActionsPage() {
       >
         {error && <p className="text-sm text-red-600">{error}</p>}
         {actions === null && !error && (
-          <p className="text-sm text-slate-500">{t.common.loading}</p>
+          <ListSkeleton />
         )}
         {actions !== null && actions.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.actions.empty}</p>
