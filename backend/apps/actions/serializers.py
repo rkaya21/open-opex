@@ -8,6 +8,9 @@ class ActionSerializer(serializers.ModelSerializer):
     finding_title = serializers.CharField(source="finding.title", read_only=True)
     suggestion_title = serializers.CharField(source="suggestion.title", read_only=True)
     project_title = serializers.CharField(source="project.title", read_only=True)
+    asakai_item_description = serializers.CharField(
+        source="asakai_item.description", read_only=True
+    )
 
     class Meta:
         model = Action
@@ -25,6 +28,8 @@ class ActionSerializer(serializers.ModelSerializer):
             "suggestion_title",
             "project",
             "project_title",
+            "asakai_item",
+            "asakai_item_description",
             "created_by",
             "completed_at",
             "created_at",

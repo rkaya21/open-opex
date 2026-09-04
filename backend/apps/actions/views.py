@@ -41,7 +41,7 @@ class ActionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Action.objects.select_related(
-            "assignee", "finding", "suggestion", "project"
+            "assignee", "finding", "suggestion", "project", "asakai_item"
         )
         params = self.request.query_params
         if status_param := params.get("status"):
@@ -92,6 +92,7 @@ class ActionViewSet(viewsets.ModelViewSet):
                 (item.finding and f"finding: {item.finding.title}")
                 or (item.suggestion and f"suggestion: {item.suggestion.title}")
                 or (item.project and f"project: {item.project.title}")
+                or (item.asakai_item and f"asakai: {item.asakai_item.description}")
                 or ""
             )
             writer.writerow(

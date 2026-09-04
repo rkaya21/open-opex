@@ -49,6 +49,13 @@ class Action(models.Model):
         on_delete=models.SET_NULL,
         related_name="actions",
     )
+    asakai_item = models.ForeignKey(
+        "meetings.AsakaiItem",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="actions",
+    )
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
