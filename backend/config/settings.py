@@ -12,9 +12,30 @@ from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-key")
+_DEFAULT_SECRET = "dev-only-insecure-key"
+SECRET_KEY = os.environ.get("SECRET_KEY", _DEFAULT_SECRET)
 DEBUG = os.environ.get("DEBUG", "0") == "1"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,.localhost").split(",")
+
+if not DEBUG and SECRET_KEY == _DEFAULT_SECRET:
+    from django.core.exceptions import ImproperlyConfigured
+
+    raise ImproperlyConfigured(
+        "SECRET_KEY must be set via environment when DEBUG is off"
+    )
+
+if not DEBUG:
+    # Behind the reverse proxy (deploy/nginx.conf) which forwards the scheme
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_REFERRER_POLICY = "same-origin"
+
+CSRF_TRUSTED_ORIGINS = [
+    origin
+    for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin
+]
 
 # --- django-tenants -------------------------------------------------------
 # The public schema holds only the tenant registry; all business data and
@@ -127,6 +148,11 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
+    # Brute-force protection on unauthenticated endpoints (login/refresh)
+    "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.AnonRateThrottle"],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": os.environ.get("ANON_THROTTLE_RATE", "30/min"),
+    },
 }
 
 SPECTACULAR_SETTINGS = {
@@ -163,6 +189,20 @@ CORS_ALLOWED_ORIGINS = [
     for origin in os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
     if origin
 ]
+
+# --- Email -----------------------------------------------------------------
+# Console backend by default (dev); point EMAIL_* at an SMTP server to send
+# real mail. Warning-level notifications are mailed when configured.
+
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "1") == "1"
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "open-opex <noreply@localhost>")
 
 # --- Celery ----------------------------------------------------------------
 

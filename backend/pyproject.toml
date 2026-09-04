@@ -22,6 +22,7 @@ dev = [
     "pytest-django>=4.9",
     "pytest-cov>=6.0",
     "ruff>=0.8",
+    "pytest-env>=1.7.0",
 ]
 
 [tool.ruff]
@@ -38,6 +39,11 @@ select = ["E", "F", "I", "B", "UP", "DJ"]
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py"]
 addopts = "--cov=apps --cov-report=term-missing"
+env = [
+    # Tests run with DEBUG off; give them their own key instead of weakening
+    # the production SECRET_KEY guard in settings.py
+    "SECRET_KEY=test-only-secret-key-not-for-production",
+]
 
 [tool.coverage.run]
 omit = ["*/migrations/*", "*/tests/*"]

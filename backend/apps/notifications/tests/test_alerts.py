@@ -38,6 +38,15 @@ class KpiAlertTests(TenantTestCase):
         self.assertEqual(notification.kind, "warning")
         self.assertEqual(notification.link, f"/kpis/{self.kpi.id}")
 
+    def test_warning_notification_sends_email(self):
+        from django.core import mail
+
+        self._measure("2026-08-01", "60")
+        check_kpi_alerts()
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("hedef dışında", mail.outbox[0].subject)
+        self.assertEqual(mail.outbox[0].to, ["owner@acme.com"])
+
     def test_alert_is_deduplicated(self):
         self._measure("2026-08-01", "60")
         check_kpi_alerts()
