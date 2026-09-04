@@ -52,7 +52,7 @@ const groups: { title: string | null; links: NavItem[] }[] = [
     links: [
       { href: "/actions", label: t.home.cards.tasks, icon: CheckCircle2 },
       { href: "/suggestions", label: t.home.cards.suggestions, icon: MessageSquare },
-      { label: t.home.cards.beforeAfter, icon: Columns2 },
+      { href: "/beforeafter", label: t.home.cards.beforeAfter, icon: Columns2 },
       { href: "/lessons", label: t.home.cards.tnd, icon: BookOpen },
       { href: "/projects", label: t.home.cards.kobetsu, icon: TrendingUp },
       { href: "/asakai", label: t.home.cards.asakai, icon: DoorOpen },
