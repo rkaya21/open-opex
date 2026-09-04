@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.2.0 — hardening & user management
+
+- **Production deployment**: `docker-compose.prod.yml` + nginx reverse proxy
+  (gunicorn with `DEBUG=0`, static/media served by nginx, Next.js standalone
+  build with same-origin API calls), `.env.example`, README deployment guide.
+- **Security**: startup guard against default `SECRET_KEY` in production,
+  secure cookies + proxy SSL header, `CSRF_TRUSTED_ORIGINS`, anonymous rate
+  limiting (30/min) on unauthenticated endpoints.
+- **User management**: admin-only API + UI to invite users, change roles,
+  reset passwords and deactivate accounts — with a self-lockout guard.
+- **Email alerts**: warning-level notifications (KPI off target, overdue
+  actions) are emailed when SMTP is configured.
+
 ## v0.1.0 — first public release
 
 Open-source, self-hosted Operational Excellence platform. Multi-tenant
