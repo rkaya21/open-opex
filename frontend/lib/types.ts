@@ -291,6 +291,25 @@ export interface AsakaiItem {
   created_at: string;
 }
 
+export type LessonCategory = "basic" | "problem" | "improvement";
+
+export interface OnePointLesson {
+  id: number;
+  trainer: number | null;
+  trainer_email: string | null;
+  category: LessonCategory;
+  category_label: string;
+  topic: string;
+  content: string;
+  held_at: string;
+  duration_minutes: number;
+  participants: number[];
+  participant_emails: string[];
+  process: number | null;
+  process_code: string | null;
+  created_at: string;
+}
+
 export interface AppNotification {
   id: number;
   title: string;
