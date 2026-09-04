@@ -106,7 +106,12 @@ export default function AuditsPage() {
             key={audit.id}
             href={`/audits/${audit.id}`}
             index={index + 1}
-            title={`${audit.template_name} · ${audit.area_code}`}
+            title={audit.name || `${audit.template_name} · ${audit.area_code}`}
+            chip={
+              audit.audit_type === "unannounced"
+                ? t.audits.typeUnannounced
+                : undefined
+            }
             accent="border-l-teal-400"
             leftMeta={[
               `${t.common.recordNo}: ${audit.id}`,

@@ -162,8 +162,11 @@ export interface Area {
   description: string;
   responsible: number | null;
   responsible_email: string | null;
+  checklist_template: number | null;
+  checklist_template_name: string | null;
   is_active: boolean;
   last_score: string | null;
+  last_audit_date: string | null;
   created_at: string;
 }
 
@@ -194,6 +197,11 @@ export interface AuditAnswer {
 
 export interface Audit {
   id: number;
+  name: string;
+  audit_type: "announced" | "unannounced";
+  participants: number[];
+  participant_emails: string[];
+  notes: string;
   template: number;
   template_name: string;
   area: number;
@@ -241,6 +249,8 @@ export interface Action {
   suggestion_title: string | null;
   project: number | null;
   project_title: string | null;
+  asakai_item: number | null;
+  asakai_item_description: string | null;
   completed_at: string | null;
   created_at: string;
   updated_at: string;
