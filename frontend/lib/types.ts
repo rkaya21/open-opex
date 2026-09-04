@@ -79,11 +79,20 @@ export interface KpiTemplate {
 
 export type SuggestionStatus = "submitted" | "approved" | "rejected" | "implemented";
 export type SuggestionCategory =
+  | "five_s"
   | "sec"
-  | "kaizen"
   | "respect"
+  | "sigma_green"
+  | "sigma_black"
+  | "kaizen"
+  | "investment"
   | "reasonable"
+  | "asakai_card"
+  | "tnd"
   | "autonomous"
+  | "rnd"
+  | "innovation"
+  | "poka_yoke"
   | "";
 
 export interface Suggestion {

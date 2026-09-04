@@ -18,11 +18,20 @@ class Suggestion(models.Model):
         IMPLEMENTED = "implemented", "Implemented"
 
     class Category(models.TextChoices):
+        FIVE_S = "five_s", "5S"
         SEC = "sec", "SEÇ (Sağlık-Emniyet-Çevre)"
-        KAIZEN = "kaizen", "A3 Kaizen / Kobetsu Kaizen"
         RESPECT = "respect", "İnsana Saygı"
+        SIGMA_GREEN = "sigma_green", "6 Sigma Yeşil Kuşak"
+        SIGMA_BLACK = "sigma_black", "6 Sigma Kara Kuşak"
+        KAIZEN = "kaizen", "A3 Kaizen / Kobetsu Kaizen"
+        INVESTMENT = "investment", "Yatırım"
         REASONABLE = "reasonable", "Makul Öneri"
+        ASAKAI_CARD = "asakai_card", "Asakai / Çözüm Kartı"
+        TND = "tnd", "TND (Tek Nokta Dersi)"
         AUTONOMOUS = "autonomous", "Otonom Bakım"
+        RND = "rnd", "Ar-Ge"
+        INNOVATION = "innovation", "İnovasyon"
+        POKA_YOKE = "poka_yoke", "Poka Yoke"
 
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)

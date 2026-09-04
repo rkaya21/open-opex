@@ -2,11 +2,20 @@ import { t } from "@/lib/i18n";
 import type { SuggestionCategory } from "@/lib/types";
 
 const squares: Record<Exclude<SuggestionCategory, "">, string> = {
+  five_s: "bg-teal-500",
   sec: "bg-yellow-400",
-  kaizen: "bg-blue-700",
   respect: "bg-pink-600",
+  sigma_green: "bg-green-500",
+  sigma_black: "bg-slate-900",
+  kaizen: "bg-blue-700",
+  investment: "bg-amber-700",
   reasonable: "bg-emerald-600",
+  asakai_card: "bg-sky-500",
+  tnd: "bg-lime-600",
   autonomous: "border border-slate-300 bg-white",
+  rnd: "bg-indigo-500",
+  innovation: "bg-purple-500",
+  poka_yoke: "bg-orange-500",
 };
 
 export default function CategoryChip({ category }: { category: SuggestionCategory }) {

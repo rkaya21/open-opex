@@ -15,13 +15,10 @@ import type {
   SuggestionCategory,
 } from "@/lib/types";
 
-const categoryKeys: Exclude<SuggestionCategory, "">[] = [
-  "sec",
-  "kaizen",
-  "respect",
-  "reasonable",
-  "autonomous",
-];
+const categoryKeys = Object.keys(t.suggestions.categories) as Exclude<
+  SuggestionCategory,
+  ""
+>[];
 
 export default function NewSuggestionPage() {
   const router = useRouter();
