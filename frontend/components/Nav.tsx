@@ -6,25 +6,34 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   Bell,
+  BookOpen,
+  CheckCircle2,
   ClipboardCheck,
+  Columns2,
+  DoorOpen,
   Home,
   Inbox,
-  Lightbulb,
-  ListChecks,
+  ListTodo,
   LogOut,
   MapPin,
+  MessageSquare,
   Power,
+  ShieldAlert,
   TrendingUp,
   UserCog,
   Workflow,
+  Zap,
 } from "lucide-react";
 import { authFetch, clearTokens, getStoredRole, isLoggedIn } from "@/lib/auth";
 import { locale, switchLocale, t, type Locale } from "@/lib/i18n";
 
-const groups: {
-  title: string | null;
-  links: { href: string; label: string; icon: React.ElementType }[];
-}[] = [
+interface NavItem {
+  label: string;
+  icon: React.ElementType;
+  href?: string; // absent → coming soon (muted, not clickable)
+}
+
+const groups: { title: string | null; links: NavItem[] }[] = [
   {
     title: null,
     links: [
@@ -35,8 +44,22 @@ const groups: {
   {
     title: t.nav.groupCulture,
     links: [
-      { href: "/suggestions", label: t.nav.suggestions, icon: Lightbulb },
-      { href: "/projects", label: t.nav.projects, icon: TrendingUp },
+      { href: "/actions", label: t.home.cards.tasks, icon: CheckCircle2 },
+      { href: "/suggestions", label: t.home.cards.suggestions, icon: MessageSquare },
+      { label: t.home.cards.beforeAfter, icon: Columns2 },
+      { label: t.home.cards.tnd, icon: BookOpen },
+      { href: "/projects", label: t.home.cards.kobetsu, icon: TrendingUp },
+      { href: "/asakai", label: t.home.cards.asakai, icon: DoorOpen },
+      { href: "/asakai-items", label: t.home.cards.asakaiItems, icon: ListTodo },
+      { href: "/audits", label: t.home.cards.audits5s, icon: ClipboardCheck },
+      { href: "/areas", label: t.home.cards.areas5s, icon: MapPin },
+    ],
+  },
+  {
+    title: t.home.sectionIsg,
+    links: [
+      { label: t.home.cards.krk, icon: ShieldAlert },
+      { label: t.home.cards.hazard, icon: Zap },
     ],
   },
   {
@@ -46,43 +69,36 @@ const groups: {
       { href: "/kpis", label: t.nav.kpis, icon: BarChart3 },
     ],
   },
-  {
-    title: t.nav.groupField,
-    links: [
-      { href: "/areas", label: t.nav.areas, icon: MapPin },
-      { href: "/audits", label: t.nav.audits, icon: ClipboardCheck },
-      { href: "/actions", label: t.nav.actions, icon: ListChecks },
-    ],
-  },
 ];
 
 const adminGroup = {
   title: t.nav.groupAdmin,
-  links: [{ href: "/settings/users", label: t.nav.users, icon: UserCog }],
+  links: [{ href: "/settings/users", label: t.nav.users, icon: UserCog }] as NavItem[],
 };
 
-function NavLink({
-  href,
-  label,
-  icon: Icon,
-  active,
-}: {
-  href: string;
-  label: string;
-  icon: React.ElementType;
-  active: boolean;
-}) {
+function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+  if (!item.href) {
+    return (
+      <span
+        className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-slate-300"
+        title={t.home.comingSoon}
+      >
+        <item.icon className="h-4 w-4 shrink-0" />
+        <span className="truncate">{item.label}</span>
+      </span>
+    );
+  }
   return (
     <Link
-      href={href}
+      href={item.href}
       className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm ${
         active
           ? "bg-slate-100 font-semibold text-slate-900"
           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
       }`}
     >
-      <Icon className="h-4 w-4 shrink-0" />
-      {label}
+      <item.icon className="h-4 w-4 shrink-0" />
+      <span className="truncate">{item.label}</span>
     </Link>
   );
 }
@@ -111,6 +127,8 @@ export default function Nav() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
+  const allGroups = [...groups, ...(isAdmin ? [adminGroup] : [])];
+
   return (
     <>
       {/* Desktop sidebar */}
@@ -130,7 +148,7 @@ export default function Nav() {
           </Link>
         </div>
         <nav className="grow space-y-4 overflow-y-auto px-3 pb-4">
-          {[...groups, ...(isAdmin ? [adminGroup] : [])].map((group) => (
+          {allGroups.map((group) => (
             <div key={group.title ?? "top"}>
               {group.title && (
                 <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
@@ -139,7 +157,11 @@ export default function Nav() {
               )}
               <div className="space-y-0.5">
                 {group.links.map((link) => (
-                  <NavLink key={link.href} {...link} active={isActive(link.href)} />
+                  <NavLink
+                    key={link.label}
+                    item={link}
+                    active={link.href ? isActive(link.href) : false}
+                  />
                 ))}
               </div>
             </div>
@@ -171,12 +193,13 @@ export default function Nav() {
         </div>
       </aside>
 
-      {/* Mobile top bar */}
+      {/* Mobile top bar — only working modules */}
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white md:hidden">
         <div className="flex items-center gap-2 overflow-x-auto px-4 py-2">
           <span className="mr-2 shrink-0 font-bold">open-opex</span>
-          {groups
+          {allGroups
             .flatMap((group) => group.links)
+            .filter((link): link is NavItem & { href: string } => !!link.href)
             .map((link) => (
               <Link
                 key={link.href}

@@ -231,6 +231,33 @@ export interface MyWork {
   suggestions_to_evaluate?: Suggestion[];
 }
 
+export interface AsakaiMeeting {
+  id: number;
+  title: string;
+  area: number | null;
+  area_code: string | null;
+  area_name: string | null;
+  held_at: string;
+  participant_count: number;
+  notes: string;
+  created_by: number | null;
+  created_by_email: string | null;
+  items_count: number;
+  open_items_count: number;
+  created_at: string;
+}
+
+export interface AsakaiItem {
+  id: number;
+  meeting: number;
+  meeting_title: string;
+  description: string;
+  status: "open" | "done";
+  created_by_email: string | null;
+  action_ids: number[];
+  created_at: string;
+}
+
 export interface AppNotification {
   id: number;
   title: string;
