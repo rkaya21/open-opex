@@ -78,11 +78,25 @@ export interface KpiTemplate {
 }
 
 export type SuggestionStatus = "submitted" | "approved" | "rejected" | "implemented";
+export type SuggestionCategory =
+  | "sec"
+  | "kaizen"
+  | "respect"
+  | "reasonable"
+  | "autonomous"
+  | "";
 
 export interface Suggestion {
   id: number;
   title: string;
   description: string;
+  category: SuggestionCategory;
+  problem: string;
+  solution: string;
+  estimated_cost: string | null;
+  cost_note: string;
+  estimated_benefit: string | null;
+  benefit_note: string;
   process: number | null;
   process_code: string | null;
   submitted_by: number | null;

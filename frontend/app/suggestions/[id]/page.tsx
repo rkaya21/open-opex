@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import CategoryChip from "@/components/CategoryChip";
 import Nav from "@/components/Nav";
 import SuggestionStatusBadge from "@/components/SuggestionStatusBadge";
 import { AuthError, authFetch } from "@/lib/auth";
@@ -75,16 +76,71 @@ export default function SuggestionDetailPage() {
           <div>
             <h1 className="text-2xl font-bold">{suggestion.title}</h1>
             <p className="mt-1 text-sm text-slate-500">
-              {t.suggestions.submittedBy}: {suggestion.submitted_by_detail?.email}
+              {t.suggestions.ideaGiver}: {suggestion.submitted_by_detail?.email}
               {suggestion.process_code && ` · ${suggestion.process_code}`}
             </p>
+            <div className="mt-2">
+              <CategoryChip category={suggestion.category} />
+            </div>
           </div>
           <SuggestionStatusBadge status={suggestion.status} />
         </div>
 
-        <p className="mt-4 whitespace-pre-wrap text-sm text-slate-700">
-          {suggestion.description}
-        </p>
+        {suggestion.description && (
+          <p className="mt-4 whitespace-pre-wrap text-sm text-slate-700">
+            {suggestion.description}
+          </p>
+        )}
+
+        {(suggestion.problem || suggestion.solution) && (
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            {suggestion.problem && (
+              <section className="rounded-lg border border-slate-200 bg-white p-4">
+                <h2 className="text-sm font-semibold text-slate-700">
+                  {t.suggestions.problem}
+                </h2>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">
+                  {suggestion.problem}
+                </p>
+              </section>
+            )}
+            {suggestion.solution && (
+              <section className="rounded-lg border border-slate-200 bg-white p-4">
+                <h2 className="text-sm font-semibold text-slate-700">
+                  {t.suggestions.solution}
+                </h2>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">
+                  {suggestion.solution}
+                </p>
+              </section>
+            )}
+          </div>
+        )}
+
+        {(suggestion.estimated_cost || suggestion.estimated_benefit) && (
+          <div className="mt-4 flex flex-wrap gap-6 text-sm">
+            {suggestion.estimated_cost && (
+              <p>
+                <span className="text-slate-500">{t.suggestions.estimatedCost}:</span>{" "}
+                <span className="font-semibold">${suggestion.estimated_cost}</span>
+                {suggestion.cost_note && (
+                  <span className="text-slate-500"> — {suggestion.cost_note}</span>
+                )}
+              </p>
+            )}
+            {suggestion.estimated_benefit && (
+              <p>
+                <span className="text-slate-500">
+                  {t.suggestions.estimatedBenefit}:
+                </span>{" "}
+                <span className="font-semibold">${suggestion.estimated_benefit}</span>
+                {suggestion.benefit_note && (
+                  <span className="text-slate-500"> — {suggestion.benefit_note}</span>
+                )}
+              </p>
+            )}
+          </div>
+        )}
 
         {suggestion.evaluation_note && (
           <section className="mt-6 rounded-lg border border-slate-200 bg-white p-4">

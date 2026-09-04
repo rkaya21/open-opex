@@ -24,7 +24,13 @@ import {
   Workflow,
   Zap,
 } from "lucide-react";
-import { authFetch, clearTokens, getStoredRole, isLoggedIn } from "@/lib/auth";
+import {
+  authFetch,
+  clearTokens,
+  getStoredEmail,
+  getStoredRole,
+  isLoggedIn,
+} from "@/lib/auth";
 import { locale, switchLocale, t, type Locale } from "@/lib/i18n";
 
 interface NavItem {
@@ -108,10 +114,12 @@ export default function Nav() {
   const pathname = usePathname();
   const [unread, setUnread] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
     document.documentElement.lang = locale;
     setIsAdmin(getStoredRole() === "admin");
+    setEmail(getStoredEmail());
     if (!isLoggedIn()) return;
     authFetch("/api/v1/notifications/unread_count/")
       .then((r) => r.json())
@@ -133,19 +141,28 @@ export default function Nav() {
     <>
       {/* Desktop sidebar */}
       <aside className="app-sidebar fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-slate-200 bg-white md:flex">
-        <div className="flex items-center justify-between px-5 py-4">
-          <span className="text-lg font-bold tracking-tight">open-opex</span>
-          <Link
-            href="/notifications"
-            className="relative rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-          >
-            <Bell className="h-5 w-5" />
-            {unread > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
-                {unread > 99 ? "99+" : unread}
-              </span>
-            )}
-          </Link>
+        <div className="border-b border-slate-100 px-5 py-4">
+          <div className="flex items-start justify-between">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-lg font-bold text-slate-600">
+              {(email?.[0] ?? "o").toUpperCase()}
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] text-slate-400">v0.2.0</span>
+              <Link
+                href="/notifications"
+                className="relative rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+              >
+                <Bell className="h-5 w-5" />
+                {unread > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+                    {unread > 99 ? "99+" : unread}
+                  </span>
+                )}
+              </Link>
+            </div>
+          </div>
+          <p className="mt-2 text-sm font-bold tracking-tight">open-opex</p>
+          {email && <p className="truncate text-xs text-slate-500">{email}</p>}
         </div>
         <nav className="grow space-y-4 overflow-y-auto px-3 pb-4">
           {allGroups.map((group) => (

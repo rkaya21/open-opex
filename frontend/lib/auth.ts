@@ -6,6 +6,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const ACCESS_KEY = "openopex.access";
 const REFRESH_KEY = "openopex.refresh";
 const ROLE_KEY = "openopex.role";
+const EMAIL_KEY = "openopex.email";
 
 export class AuthError extends Error {
   constructor() {
@@ -22,6 +23,11 @@ export function clearTokens(): void {
   localStorage.removeItem(ACCESS_KEY);
   localStorage.removeItem(REFRESH_KEY);
   localStorage.removeItem(ROLE_KEY);
+  localStorage.removeItem(EMAIL_KEY);
+}
+
+export function getStoredEmail(): string | null {
+  return typeof window === "undefined" ? null : localStorage.getItem(EMAIL_KEY);
 }
 
 /** UI hint only — real authorization is enforced by the API. */
@@ -46,8 +52,9 @@ export async function login(email: string, password: string): Promise<void> {
   localStorage.setItem(REFRESH_KEY, refresh);
   try {
     const me = await authFetch("/api/v1/me/");
-    const profile = (await me.json()) as { role?: string };
+    const profile = (await me.json()) as { role?: string; email?: string };
     if (profile.role) localStorage.setItem(ROLE_KEY, profile.role);
+    if (profile.email) localStorage.setItem(EMAIL_KEY, profile.email);
   } catch {
     // role is only a UI hint; ignore failures
   }
