@@ -4,19 +4,20 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, ChevronLeft } from "lucide-react";
+import LessonCategoryChip from "@/components/LessonCategoryChip";
 import Nav from "@/components/Nav";
 import { AuthError, authFetch, getStoredEmail } from "@/lib/auth";
 import { t } from "@/lib/i18n";
 import type { LessonCategory, OnePointLesson, TenantUser } from "@/lib/types";
 
-const categoryKeys: LessonCategory[] = ["basic", "problem", "improvement"];
+const categoryKeys = Object.keys(t.lessons.categories) as LessonCategory[];
 
 export default function NewLessonPage() {
   const router = useRouter();
   const [users, setUsers] = useState<TenantUser[]>([]);
   const [form, setForm] = useState({
     trainer: "" as number | "",
-    category: "basic" as LessonCategory,
+    category: "quality" as LessonCategory,
     topic: "",
     content: "",
     date: new Date().toISOString().slice(0, 10),
@@ -180,20 +181,23 @@ export default function NewLessonPage() {
 
           <div>
             <label className="text-sm font-medium">{t.lessons.category}</label>
-            <select
-              required
-              value={form.category}
-              onChange={(e) =>
-                setForm({ ...form, category: e.target.value as LessonCategory })
-              }
-              className={inputClass}
-            >
-              {categoryKeys.map((key) => (
-                <option key={key} value={key}>
-                  {t.lessons.categories[key]}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center gap-3">
+              <select
+                required
+                value={form.category}
+                onChange={(e) =>
+                  setForm({ ...form, category: e.target.value as LessonCategory })
+                }
+                className={inputClass}
+              >
+                {categoryKeys.map((key) => (
+                  <option key={key} value={key}>
+                    {t.lessons.categories[key]}
+                  </option>
+                ))}
+              </select>
+              <LessonCategoryChip category={form.category} label="" />
+            </div>
           </div>
 
           <div>
