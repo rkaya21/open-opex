@@ -59,6 +59,10 @@ const tr = {
     saved: "Kaydedildi",
     updated: "Güncellendi",
     done: "İşlem tamamlandı",
+    search: "Ara…",
+    page: "Sayfa",
+    prevPage: "Önceki sayfa",
+    nextPage: "Sonraki sayfa",
   },
   notifications: {
     title: "Bildirimler",
@@ -602,6 +606,10 @@ const en: Dictionary = {
     saved: "Saved",
     updated: "Updated",
     done: "Done",
+    search: "Search…",
+    page: "Page",
+    prevPage: "Previous page",
+    nextPage: "Next page",
   },
   notifications: {
     title: "Notifications",

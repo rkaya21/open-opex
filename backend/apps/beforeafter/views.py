@@ -1,4 +1,4 @@
-from rest_framework import mixins, status, viewsets
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
@@ -24,6 +24,8 @@ class BeforeAfterFormViewSet(viewsets.ModelViewSet):
 
     serializer_class = BeforeAfterFormSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["problem", "budget_code"]
 
     def get_queryset(self):
         queryset = BeforeAfterForm.objects.select_related(

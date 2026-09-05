@@ -1,42 +1,30 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import LessonCategoryChip from "@/components/LessonCategoryChip";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
-import { ListSkeleton } from "@/components/Skeleton";
 import RecordCard from "@/components/RecordCard";
-import { AuthError, authFetch } from "@/lib/auth";
+import { ListSkeleton } from "@/components/Skeleton";
 import { locale, t } from "@/lib/i18n";
-import type { LessonCategory, OnePointLesson, Paginated } from "@/lib/types";
+import { usePaginatedList } from "@/lib/usePaginatedList";
+import type { LessonCategory, OnePointLesson } from "@/lib/types";
 
 export default function LessonsPage() {
-  const router = useRouter();
-  const [lessons, setLessons] = useState<OnePointLesson[] | null>(null);
-  const [count, setCount] = useState<number | null>(null);
   const [category, setCategory] = useState<LessonCategory | "">("");
-  const [error, setError] = useState("");
-
-  const load = useCallback(async () => {
-    try {
-      const query = category ? `?category=${category}` : "";
-      const response = await authFetch(`/api/v1/lessons/${query}`);
-      const data: Paginated<OnePointLesson> = await response.json();
-      setLessons(data.results);
-      setCount(data.count);
-    } catch (err) {
-      if (err instanceof AuthError) {
-        router.push("/login");
-        return;
-      }
-      setError(t.lessons.loadFailed);
-    }
-  }, [category, router]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const {
+    items: lessons,
+    count,
+    failed,
+    page,
+    setPage,
+    pageCount,
+    search,
+    setSearch,
+  } = usePaginatedList<OnePointLesson>(
+    "/api/v1/lessons/",
+    category ? `category=${category}` : "",
+  );
 
   const filters = (
     <div>
@@ -65,11 +53,14 @@ export default function LessonsPage() {
         filters={filters}
         onFilterReset={() => setCategory("")}
         fabHref="/lessons/new"
+        search={search}
+        onSearchChange={setSearch}
+        page={page}
+        pageCount={pageCount}
+        onPageChange={setPage}
       >
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {lessons === null && !error && (
-          <ListSkeleton />
-        )}
+        {failed && <p className="text-sm text-red-600">{t.lessons.loadFailed}</p>}
+        {lessons === null && !failed && <ListSkeleton />}
         {lessons !== null && lessons.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.lessons.empty}</p>
         )}

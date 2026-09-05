@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from rest_framework import status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -29,6 +29,8 @@ class ManagerWritesViewSet(viewsets.ModelViewSet):
 
 class AreaViewSet(ManagerWritesViewSet):
     serializer_class = AreaSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name", "code"]
 
     def get_queryset(self):
         queryset = Area.objects.select_related("responsible", "checklist_template")
@@ -53,6 +55,8 @@ class AuditViewSet(ManagerWritesViewSet):
     """
 
     serializer_class = AuditSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name", "template__name", "area__name", "area__code"]
     READ_ACTIONS = ("list", "retrieve", "answers", "complete")
 
     def get_queryset(self):

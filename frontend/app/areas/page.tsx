@@ -1,14 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
-import { ListSkeleton } from "@/components/Skeleton";
 import RecordCard from "@/components/RecordCard";
-import { AuthError, authFetch } from "@/lib/auth";
+import { ListSkeleton } from "@/components/Skeleton";
 import { locale, t } from "@/lib/i18n";
-import type { Area, Paginated } from "@/lib/types";
+import { usePaginatedList } from "@/lib/usePaginatedList";
+import type { Area } from "@/lib/types";
 
 function scoreBadge(area: Area) {
   if (area.last_score === null) {
@@ -29,42 +27,28 @@ function scoreBadge(area: Area) {
 }
 
 export default function AreasPage() {
-  const router = useRouter();
-  const [areas, setAreas] = useState<Area[] | null>(null);
-  const [count, setCount] = useState<number | null>(null);
-  const [error, setError] = useState("");
-
-  const load = useCallback(async () => {
-    try {
-      const response = await authFetch("/api/v1/areas/?page_size=200");
-      const data: Paginated<Area> = await response.json();
-      setAreas(data.results);
-      setCount(data.count);
-    } catch (err) {
-      if (err instanceof AuthError) {
-        router.push("/login");
-        return;
-      }
-      setError(t.areas.loadFailed);
-    }
-  }, [router]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const { items, count, failed, page, setPage, pageCount, search, setSearch } =
+    usePaginatedList<Area>("/api/v1/areas/");
 
   return (
     <>
       <Nav />
-      <ListShell title={t.areas.title} count={count} fabHref="/areas/new">
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {areas === null && !error && (
-          <ListSkeleton />
-        )}
-        {areas !== null && areas.length === 0 && (
+      <ListShell
+        title={t.areas.title}
+        count={count}
+        fabHref="/areas/new"
+        search={search}
+        onSearchChange={setSearch}
+        page={page}
+        pageCount={pageCount}
+        onPageChange={setPage}
+      >
+        {failed && <p className="text-sm text-red-600">{t.areas.loadFailed}</p>}
+        {items === null && !failed && <ListSkeleton />}
+        {items !== null && items.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.areas.empty}</p>
         )}
-        {areas?.map((area, index) => (
+        {items?.map((area, index) => (
           <RecordCard
             key={area.id}
             index={index + 1}

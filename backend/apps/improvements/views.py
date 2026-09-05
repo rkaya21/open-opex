@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from rest_framework import status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
@@ -26,6 +26,8 @@ class SuggestionViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = SuggestionSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["title", "description", "problem", "solution"]
 
     MANAGER_ACTIONS = ("approve", "reject", "implement")
 
@@ -105,6 +107,8 @@ class ImprovementProjectViewSet(viewsets.ModelViewSet):
     """PDCA / A3 improvement projects. Read: all members; write: manager/admin."""
 
     serializer_class = ImprovementProjectSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["title", "description"]
 
     READ_ACTIONS = ("list", "retrieve")
 
