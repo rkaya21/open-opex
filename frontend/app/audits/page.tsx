@@ -1,50 +1,46 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
-import { ListSkeleton } from "@/components/Skeleton";
 import RecordCard from "@/components/RecordCard";
+import { ListSkeleton } from "@/components/Skeleton";
 import { AuthError, authFetch } from "@/lib/auth";
 import { locale, t } from "@/lib/i18n";
+import { usePaginatedList } from "@/lib/usePaginatedList";
 import type { Area, Audit, Paginated } from "@/lib/types";
 
 const emptyFilters = { area: "" as number | "", status: "" };
 
 export default function AuditsPage() {
   const router = useRouter();
-  const [audits, setAudits] = useState<Audit[] | null>(null);
-  const [count, setCount] = useState<number | null>(null);
   const [areas, setAreas] = useState<Area[]>([]);
   const [filters, setFilters] = useState(emptyFilters);
-  const [error, setError] = useState("");
+  const filterQuery = new URLSearchParams({
+    ...(filters.area !== "" ? { area: String(filters.area) } : {}),
+    ...(filters.status ? { status: filters.status } : {}),
+  }).toString();
+  const {
+    items: audits,
+    count,
+    failed,
+    page,
+    setPage,
+    pageCount,
+    search,
+    setSearch,
+  } = usePaginatedList<Audit>("/api/v1/audits/", filterQuery);
 
-  const load = useCallback(async () => {
-    try {
-      const params = new URLSearchParams({ page_size: "100" });
-      if (filters.area !== "") params.set("area", String(filters.area));
-      if (filters.status) params.set("status", filters.status);
-      const [auditRes, areaRes] = await Promise.all([
-        authFetch(`/api/v1/audits/?${params}`),
-        authFetch("/api/v1/areas/?page_size=200"),
-      ]);
-      const data: Paginated<Audit> = await auditRes.json();
-      setAudits(data.results);
-      setCount(data.count);
-      setAreas(((await areaRes.json()) as Paginated<Area>).results);
-    } catch (err) {
-      if (err instanceof AuthError) {
-        router.push("/login");
-        return;
-      }
-      setError(t.audits.loadFailed);
-    }
-  }, [filters, router]);
-
+  // Areas only power the filter dropdown
   useEffect(() => {
-    load();
-  }, [load]);
+    authFetch("/api/v1/areas/?page_size=200")
+      .then((r) => r.json())
+      .then((data: Paginated<Area>) => setAreas(data.results))
+      .catch((err) => {
+        if (err instanceof AuthError) router.push("/login");
+      });
+  }, [router]);
 
   const inputClass = "w-full rounded-md border border-slate-300 px-3 py-2 text-sm";
 
@@ -94,11 +90,14 @@ export default function AuditsPage() {
         filters={filterPanel}
         onFilterReset={() => setFilters(emptyFilters)}
         fabHref="/audits/new"
+        search={search}
+        onSearchChange={setSearch}
+        page={page}
+        pageCount={pageCount}
+        onPageChange={setPage}
       >
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {audits === null && !error && (
-          <ListSkeleton />
-        )}
+        {failed && <p className="text-sm text-red-600">{t.audits.loadFailed}</p>}
+        {audits === null && !failed && <ListSkeleton />}
         {audits !== null && audits.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.audits.empty}</p>
         )}

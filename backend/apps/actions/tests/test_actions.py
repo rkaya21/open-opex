@@ -82,6 +82,14 @@ class ActionApiTests(TenantTestCase):
         self.assertIn("'=SUM(A1:A9)", content)  # formula neutralized
         self.assertIn("Normal iş", content)
 
+    def test_search_by_title(self):
+        Action.objects.create(title="Vinç halatı değişimi", assignee=self.member)
+        Action.objects.create(title="Zemin çizgileri", assignee=self.member)
+        self.client.force_authenticate(self.member)
+        response = self.client.get("/api/v1/actions/?search=halat")
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(response.json()["results"][0]["title"], "Vinç halatı değişimi")
+
     def test_mine_filter(self):
         Action.objects.create(title="Benim", assignee=self.member)
         Action.objects.create(title="Başkasının", assignee=self.other)

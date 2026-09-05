@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
@@ -9,7 +9,8 @@ import { ListSkeleton } from "@/components/Skeleton";
 import { useToast } from "@/components/Toast";
 import { AuthError, authFetch, downloadFile } from "@/lib/auth";
 import { locale, t } from "@/lib/i18n";
-import type { Action, ActionStatus, Paginated } from "@/lib/types";
+import { usePaginatedList } from "@/lib/usePaginatedList";
+import type { Action, ActionStatus } from "@/lib/types";
 
 const statusLabels: Record<ActionStatus, string> = {
   open: t.actions.statusOpen,
@@ -41,33 +42,23 @@ function formatDate(value: string | null): string {
 export default function ActionsPage() {
   const router = useRouter();
   const toast = useToast();
-  const [actions, setActions] = useState<Action[] | null>(null);
-  const [count, setCount] = useState<number | null>(null);
   const [filter, setFilter] = useState<ActionStatus | "">("");
-  const [error, setError] = useState("");
-
-  const load = useCallback(async () => {
-    try {
-      const query = filter ? `?status=${filter}` : "";
-      const response = await authFetch(`/api/v1/actions/${query}`);
-      const data: Paginated<Action> = await response.json();
-      setActions(data.results);
-      setCount(data.count);
-    } catch (err) {
-      if (err instanceof AuthError) {
-        router.push("/login");
-        return;
-      }
-      setError(t.actions.loadFailed);
-    }
-  }, [filter, router]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const {
+    items: actions,
+    count,
+    failed,
+    page,
+    setPage,
+    pageCount,
+    search,
+    setSearch,
+    reload,
+  } = usePaginatedList<Action>(
+    "/api/v1/actions/",
+    filter ? `status=${filter}` : "",
+  );
 
   async function setStatus(action: Action, status: ActionStatus) {
-    setError("");
     try {
       const response = await authFetch(`/api/v1/actions/${action.id}/`, {
         method: "PATCH",
@@ -78,7 +69,7 @@ export default function ActionsPage() {
         return;
       }
       toast.success(t.common.updated);
-      await load();
+      await reload();
     } catch (err) {
       if (err instanceof AuthError) router.push("/login");
     }
@@ -124,11 +115,14 @@ export default function ActionsPage() {
         filters={filters}
         onFilterReset={() => setFilter("")}
         fabHref="/actions/new"
+        search={search}
+        onSearchChange={setSearch}
+        page={page}
+        pageCount={pageCount}
+        onPageChange={setPage}
       >
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {actions === null && !error && (
-          <ListSkeleton />
-        )}
+        {failed && <p className="text-sm text-red-600">{t.actions.loadFailed}</p>}
+        {actions === null && !failed && <ListSkeleton />}
         {actions !== null && actions.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.actions.empty}</p>
         )}

@@ -1,41 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
-import { ListSkeleton } from "@/components/Skeleton";
 import RecordCard from "@/components/RecordCard";
-import { AuthError, authFetch } from "@/lib/auth";
+import { ListSkeleton } from "@/components/Skeleton";
 import { locale, t } from "@/lib/i18n";
-import type { BeforeAfterForm, GainCategory, Paginated } from "@/lib/types";
+import { usePaginatedList } from "@/lib/usePaginatedList";
+import type { BeforeAfterForm, GainCategory } from "@/lib/types";
 
 export default function BeforeAfterPage() {
-  const router = useRouter();
-  const [forms, setForms] = useState<BeforeAfterForm[] | null>(null);
-  const [count, setCount] = useState<number | null>(null);
   const [category, setCategory] = useState<GainCategory>("");
-  const [error, setError] = useState("");
-
-  const load = useCallback(async () => {
-    try {
-      const query = category ? `?category=${category}` : "";
-      const response = await authFetch(`/api/v1/beforeafter/${query}`);
-      const data: Paginated<BeforeAfterForm> = await response.json();
-      setForms(data.results);
-      setCount(data.count);
-    } catch (err) {
-      if (err instanceof AuthError) {
-        router.push("/login");
-        return;
-      }
-      setError(t.beforeAfter.loadFailed);
-    }
-  }, [category, router]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const {
+    items: forms,
+    count,
+    failed,
+    page,
+    setPage,
+    pageCount,
+    search,
+    setSearch,
+  } = usePaginatedList<BeforeAfterForm>(
+    "/api/v1/beforeafter/",
+    category ? `category=${category}` : "",
+  );
 
   const filters = (
     <div>
@@ -66,11 +54,14 @@ export default function BeforeAfterPage() {
         filters={filters}
         onFilterReset={() => setCategory("")}
         fabHref="/beforeafter/new"
+        search={search}
+        onSearchChange={setSearch}
+        page={page}
+        pageCount={pageCount}
+        onPageChange={setPage}
       >
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {forms === null && !error && (
-          <ListSkeleton />
-        )}
+        {failed && <p className="text-sm text-red-600">{t.beforeAfter.loadFailed}</p>}
+        {forms === null && !failed && <ListSkeleton />}
         {forms !== null && forms.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.beforeAfter.empty}</p>
         )}

@@ -1,42 +1,30 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
-import { ListSkeleton } from "@/components/Skeleton";
 import PhaseBadge from "@/components/PhaseBadge";
 import RecordCard from "@/components/RecordCard";
-import { AuthError, authFetch } from "@/lib/auth";
+import { ListSkeleton } from "@/components/Skeleton";
 import { locale, projectPhaseLabels, t } from "@/lib/i18n";
-import type { ImprovementProject, Paginated, ProjectPhase } from "@/lib/types";
+import { usePaginatedList } from "@/lib/usePaginatedList";
+import type { ImprovementProject, ProjectPhase } from "@/lib/types";
 
 export default function ProjectsPage() {
-  const router = useRouter();
-  const [projects, setProjects] = useState<ImprovementProject[] | null>(null);
-  const [count, setCount] = useState<number | null>(null);
   const [filter, setFilter] = useState<ProjectPhase | "">("");
-  const [error, setError] = useState("");
-
-  const load = useCallback(async () => {
-    try {
-      const query = filter ? `?phase=${filter}` : "";
-      const response = await authFetch(`/api/v1/projects/${query}`);
-      const data: Paginated<ImprovementProject> = await response.json();
-      setProjects(data.results);
-      setCount(data.count);
-    } catch (err) {
-      if (err instanceof AuthError) {
-        router.push("/login");
-        return;
-      }
-      setError(t.projects.loadFailed);
-    }
-  }, [filter, router]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const {
+    items: projects,
+    count,
+    failed,
+    page,
+    setPage,
+    pageCount,
+    search,
+    setSearch,
+  } = usePaginatedList<ImprovementProject>(
+    "/api/v1/projects/",
+    filter ? `phase=${filter}` : "",
+  );
 
   const filters = (
     <div>
@@ -65,11 +53,14 @@ export default function ProjectsPage() {
         filters={filters}
         onFilterReset={() => setFilter("")}
         fabHref="/projects/new"
+        search={search}
+        onSearchChange={setSearch}
+        page={page}
+        pageCount={pageCount}
+        onPageChange={setPage}
       >
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {projects === null && !error && (
-          <ListSkeleton />
-        )}
+        {failed && <p className="text-sm text-red-600">{t.projects.loadFailed}</p>}
+        {projects === null && !failed && <ListSkeleton />}
         {projects !== null && projects.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.projects.empty}</p>
         )}

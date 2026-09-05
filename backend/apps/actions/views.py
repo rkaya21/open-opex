@@ -2,8 +2,8 @@ import csv
 
 from django.http import HttpResponse
 from django.utils import timezone
+from rest_framework import filters, viewsets
 from rest_framework import status as http_status
-from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
@@ -35,6 +35,8 @@ class ActionViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = ActionSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["title", "description"]
 
     def get_permissions(self):
         return [IsAuthenticated()]

@@ -1,52 +1,33 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import CategoryChip from "@/components/CategoryChip";
 import ListShell from "@/components/ListShell";
 import Nav from "@/components/Nav";
-import { ListSkeleton } from "@/components/Skeleton";
 import RecordCard from "@/components/RecordCard";
+import { ListSkeleton } from "@/components/Skeleton";
 import SuggestionStatusBadge from "@/components/SuggestionStatusBadge";
-import { AuthError, authFetch } from "@/lib/auth";
 import { locale, suggestionStatusLabels, t } from "@/lib/i18n";
-import type {
-  Paginated,
-  Suggestion,
-  SuggestionCategory,
-  SuggestionStatus,
-} from "@/lib/types";
+import { usePaginatedList } from "@/lib/usePaginatedList";
+import type { Suggestion, SuggestionCategory, SuggestionStatus } from "@/lib/types";
 
 export default function SuggestionsPage() {
-  const router = useRouter();
-  const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
-  const [count, setCount] = useState<number | null>(null);
   const [filter, setFilter] = useState<SuggestionStatus | "">("");
   const [category, setCategory] = useState<SuggestionCategory>("");
-  const [error, setError] = useState("");
-
-  const load = useCallback(async () => {
-    try {
-      const params = new URLSearchParams();
-      if (filter) params.set("status", filter);
-      if (category) params.set("category", category);
-      const query = params.size ? `?${params}` : "";
-      const response = await authFetch(`/api/v1/suggestions/${query}`);
-      const data: Paginated<Suggestion> = await response.json();
-      setSuggestions(data.results);
-      setCount(data.count);
-    } catch (err) {
-      if (err instanceof AuthError) {
-        router.push("/login");
-        return;
-      }
-      setError(t.suggestions.loadFailed);
-    }
-  }, [filter, category, router]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const filterQuery = new URLSearchParams({
+    ...(filter ? { status: filter } : {}),
+    ...(category ? { category } : {}),
+  }).toString();
+  const {
+    items: suggestions,
+    count,
+    failed,
+    page,
+    setPage,
+    pageCount,
+    search,
+    setSearch,
+  } = usePaginatedList<Suggestion>("/api/v1/suggestions/", filterQuery);
 
   const filters = (
     <>
@@ -97,11 +78,14 @@ export default function SuggestionsPage() {
           setCategory("");
         }}
         fabHref="/suggestions/new"
+        search={search}
+        onSearchChange={setSearch}
+        page={page}
+        pageCount={pageCount}
+        onPageChange={setPage}
       >
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {suggestions === null && !error && (
-          <ListSkeleton />
-        )}
+        {failed && <p className="text-sm text-red-600">{t.suggestions.loadFailed}</p>}
+        {suggestions === null && !failed && <ListSkeleton />}
         {suggestions !== null && suggestions.length === 0 && (
           <p className="text-center text-sm text-slate-500">{t.suggestions.empty}</p>
         )}
